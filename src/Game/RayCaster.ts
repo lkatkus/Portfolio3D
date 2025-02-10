@@ -23,8 +23,8 @@ export class RayCaster {
       const mouseX = e.clientX;
       const mouseY = e.clientY;
 
-      const x = (mouseX / screen.width) * 2 - 1;
-      const y = -((mouseY / screen.height) * 2 - 1);
+      const x = (mouseX / game.screen.width) * 2 - 1;
+      const y = -((mouseY / game.screen.height) * 2 - 1);
 
       mouse.set(x, y);
     });
@@ -36,7 +36,8 @@ export class RayCaster {
         const currentIntersect = intersects[0];
         const currentIntersectObject = currentIntersect.object;
 
-        if (currentIntersectObject.name === "gameBoy") {
+        // @TODO check how to handle loaded model mesh name
+        if (currentIntersectObject.name === "LOD3spShape") {
           if (!game.testingProgress) {
             if (game.testing && game.testingCompleted) {
               game.testing = false;
@@ -54,9 +55,13 @@ export class RayCaster {
   handleIntersects() {
     const { intersects, game } = this;
 
-    if (intersects.length > 0 && game.testingMultiplier !== 0.5) {
+    if (intersects.length > 0 && game.testingMultiplier !== 0.2) {
+      document.getElementById("webglCanvas")!.classList.add("clickable");
+
       game.testingMultiplier = 0.2;
     } else if (intersects.length === 0 && game.testingMultiplier !== 1) {
+      document.getElementById("webglCanvas")!.classList.remove("clickable");
+
       game.testingMultiplier = 1;
     }
   }
@@ -67,7 +72,8 @@ export class RayCaster {
 
     rayCaster.setFromCamera(mouse, camera.currentCamera);
 
-    const objects = [entities.geometry];
+    const objects = [entities.group];
+
     this.intersects = rayCaster.intersectObjects(objects);
 
     this.handleIntersects();

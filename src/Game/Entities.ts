@@ -1,37 +1,57 @@
 import gsap from "gsap";
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Game } from "./Game";
 import { OBJECT_BASE_POSITION, OBJECT_FOCUS_POSITION } from "./constants";
 
 export class Entities {
   game: Game;
-  geometry: THREE.Mesh;
+  group: THREE.Group;
+  // geometry: any;
+  gltfLoader: GLTFLoader;
+  textureLoader: THREE.TextureLoader;
 
   constructor(game: Game) {
     this.game = game;
-    this.geometry = this.initEntities();
+    this.textureLoader = new THREE.TextureLoader();
+    this.gltfLoader = new GLTFLoader();
+    this.group = this.initGroup();
+
+    this.initModels();
   }
 
-  initEntities() {
+  initGroup() {
     const { game } = this;
     const { scene } = game;
 
-    const cube = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 2, 0.3),
-      new THREE.MeshStandardMaterial({ color: "#ffffff" })
-    );
+    const group = new THREE.Group();
 
-    cube.position.copy(OBJECT_BASE_POSITION);
-    cube.name = "gameBoy";
+    scene.currentScene.add(group);
 
-    scene.currentScene.add(cube);
+    return group;
+  }
 
-    return cube;
+  initModels() {
+    const { group, gltfLoader } = this;
+
+    gltfLoader.load("/models/Duck/Duck.gltf", (gltf) => {
+      const model = gltf.scene.children[0];
+
+      model.position.copy(OBJECT_BASE_POSITION);
+
+      group.add(model);
+    });
   }
 
   update() {
-    const { game, geometry } = this;
+    const { game, group } = this;
     const { clock } = game;
+
+    const geometry = group.children[0];
+
+    if (!geometry) {
+      return;
+    }
 
     const tweenDuration = 0.3;
 
@@ -45,7 +65,7 @@ export class Entities {
         timeline
           .to(geometry.rotation, {
             x: 0,
-            y: 0,
+            y: Math.PI / 2 + Math.PI,
             z: 0,
             duration: tweenDuration,
           })
@@ -98,10 +118,10 @@ export class Entities {
         const rotationDiff = (Math.PI / 2) * clock.deltaTime;
 
         geometry.rotation.y += rotationDiff * game.testingMultiplier;
-        geometry.rotation.y = geometry.rotation.y % Math.PI;
+        geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
 
-        // geometry.position.y = Math.sin(elapsedTime) * 0.25;
-        // geometry.rotation.x = Math.sin(elapsedTime) * 0.25;
+        // geometry.position.y = Math.sin(clock.elapsedTime) * 0.25;
+        // geometry.rotation.x = Math.sin(clock.elapsedTime) * 0.25;
       }
     }
   }
