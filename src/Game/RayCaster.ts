@@ -16,6 +16,24 @@ export class RayCaster {
     this.initListeners();
   }
 
+  handleRestore() {
+    const { game } = this;
+
+    game.testing = false;
+    game.testingProgress = true;
+  }
+
+  handleFocus() {
+    const { game } = this;
+
+    game.testing = true;
+    game.testingCompleted = false;
+  }
+
+  handleStart() {
+    alert("@TODO");
+  }
+
   initListeners() {
     const { game, mouse } = this;
 
@@ -30,23 +48,35 @@ export class RayCaster {
     });
 
     window.addEventListener("mousedown", () => {
-      const { intersects } = this;
+      const { game, intersects } = this;
 
       if (this.intersects.length > 0) {
         const currentIntersect = intersects[0];
         const currentIntersectObject = currentIntersect.object;
 
-        // @TODO check how to handle loaded model mesh name
-        if (currentIntersectObject.name === "LOD3spShape") {
-          if (!game.testingProgress) {
-            if (game.testing && game.testingCompleted) {
-              game.testing = false;
-              game.testingProgress = true;
-            } else {
-              game.testing = true;
-              game.testingCompleted = false;
+        if (!game.testing) {
+          if (
+            currentIntersectObject.name === "baseBody" ||
+            currentIntersectObject.name === "baseScreen"
+          ) {
+            if (!game.testingProgress) {
+              if (game.testing && game.testingCompleted) {
+                this.handleRestore();
+              } else {
+                this.handleFocus();
+              }
             }
           }
+        } else {
+          if (currentIntersectObject.name === "baseScreen") {
+            this.handleStart();
+          } else {
+            this.handleRestore();
+          }
+        }
+      } else {
+        if (game.testing) {
+          this.handleRestore();
         }
       }
     });

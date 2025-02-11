@@ -10,7 +10,7 @@ export class Lights {
     const ambientLight = new THREE.AmbientLight("#ffffff", 2);
 
     const directionalLight = new THREE.DirectionalLight("#ffffff", 2);
-    directionalLight.position.set(1, 0.25, 0);
+    directionalLight.position.set(10, 10, 10);
 
     scene.currentScene.add(ambientLight, directionalLight);
 

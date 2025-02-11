@@ -7,7 +7,6 @@ import { OBJECT_BASE_POSITION, OBJECT_FOCUS_POSITION } from "./constants";
 export class Entities {
   game: Game;
   group: THREE.Group;
-  // geometry: any;
   gltfLoader: GLTFLoader;
   textureLoader: THREE.TextureLoader;
 
@@ -32,10 +31,22 @@ export class Entities {
   }
 
   initModels() {
-    const { group, gltfLoader } = this;
+    const { group, textureLoader, gltfLoader } = this;
 
-    gltfLoader.load("/models/Duck/Duck.gltf", (gltf) => {
-      const model = gltf.scene.children[0];
+    const bodyMatcap = textureLoader.load("/textures/body.png");
+
+    gltfLoader.load("/models/GameBoy-1.glb", (gltf) => {
+      const model = gltf.scene;
+
+      const baseBody = model.children[0];
+      (baseBody as any).material = new THREE.MeshMatcapMaterial({
+        matcap: bodyMatcap,
+      });
+
+      // model.children.forEach((child) => {
+      //   child.castShadow = true;
+      //   child.receiveShadow = true;
+      // });
 
       model.position.copy(OBJECT_BASE_POSITION);
 
@@ -65,7 +76,7 @@ export class Entities {
         timeline
           .to(geometry.rotation, {
             x: 0,
-            y: Math.PI / 2 + Math.PI,
+            y: 0,
             z: 0,
             duration: tweenDuration,
           })
@@ -120,8 +131,8 @@ export class Entities {
         geometry.rotation.y += rotationDiff * game.testingMultiplier;
         geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
 
-        // geometry.position.y = Math.sin(clock.elapsedTime) * 0.25;
-        // geometry.rotation.x = Math.sin(clock.elapsedTime) * 0.25;
+        // geometry.position.y = Math.sin(clock.elapsedTime * 2) * 0.25;
+        // geometry.rotation.x = Math.sin(clock.elapsedTime * 2) * 0.25;
       }
     }
   }

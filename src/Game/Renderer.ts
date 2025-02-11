@@ -12,6 +12,10 @@ export class Renderer {
     const renderer = new THREE.WebGLRenderer({ canvas });
 
     renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.game = game;
     this.renderer = renderer;
