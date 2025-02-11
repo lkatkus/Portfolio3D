@@ -34,7 +34,10 @@ export class Entities {
     const { group, textureLoader, gltfLoader } = this;
 
     const bodyMatcap = textureLoader.load("/textures/body.png");
+    bodyMatcap.colorSpace = THREE.SRGBColorSpace;
+
     const splashScreen = textureLoader.load("/textures/splashScreen.png");
+    splashScreen.colorSpace = THREE.SRGBColorSpace;
     splashScreen.flipY = false;
     splashScreen.minFilter = THREE.NearestFilter;
     splashScreen.magFilter = THREE.NearestFilter;

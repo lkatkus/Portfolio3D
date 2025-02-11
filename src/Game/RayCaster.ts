@@ -57,7 +57,8 @@ export class RayCaster {
         if (!game.testing) {
           if (
             currentIntersectObject.name === "baseBody" ||
-            currentIntersectObject.name === "baseScreen"
+            currentIntersectObject.name === "baseScreen" ||
+            currentIntersectObject.name === "baseScreenBezel"
           ) {
             if (!game.testingProgress) {
               if (game.testing && game.testingCompleted) {
