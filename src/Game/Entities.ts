@@ -34,6 +34,10 @@ export class Entities {
     const { group, textureLoader, gltfLoader } = this;
 
     const bodyMatcap = textureLoader.load("/textures/body.png");
+    const splashScreen = textureLoader.load("/textures/splashScreen.png");
+    splashScreen.flipY = false;
+    splashScreen.minFilter = THREE.NearestFilter;
+    splashScreen.magFilter = THREE.NearestFilter;
 
     gltfLoader.load("/models/GameBoy-1.glb", (gltf) => {
       const model = gltf.scene;
@@ -41,6 +45,11 @@ export class Entities {
       const baseBody = model.children[0];
       (baseBody as any).material = new THREE.MeshMatcapMaterial({
         matcap: bodyMatcap,
+      });
+
+      const baseScreen = model.children[5];
+      (baseScreen as any).material = new THREE.MeshStandardMaterial({
+        map: splashScreen,
       });
 
       // model.children.forEach((child) => {
