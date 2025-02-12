@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import type { Game } from "./Game";
 
-const SIZE_MULTIPLIER = 0.2;
+const SIZE_MULTIPLIER = 1;
 
 export class Renderer {
   game: Game;

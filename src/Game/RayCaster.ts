@@ -50,16 +50,13 @@ export class RayCaster {
     window.addEventListener("mousedown", () => {
       const { game, intersects } = this;
 
-      if (this.intersects.length > 0) {
-        const currentIntersect = intersects[0];
-        const currentIntersectObject = currentIntersect.object;
-
+      if (intersects.length > 0) {
         if (!game.testing) {
-          if (
-            currentIntersectObject.name === "baseBody" ||
-            currentIntersectObject.name === "baseScreen" ||
-            currentIntersectObject.name === "baseScreenBezel"
-          ) {
+          const isTargetBody = intersects.some(
+            ({ object }) => object.name === "targetBody"
+          );
+
+          if (isTargetBody) {
             if (!game.testingProgress) {
               if (game.testing && game.testingCompleted) {
                 this.handleRestore();
@@ -69,7 +66,11 @@ export class RayCaster {
             }
           }
         } else {
-          if (currentIntersectObject.name === "baseScreen") {
+          const isTargetScreen = intersects.some(
+            ({ object }) => object.name === "baseScreen"
+          );
+
+          if (isTargetScreen) {
             this.handleStart();
           } else {
             this.handleRestore();

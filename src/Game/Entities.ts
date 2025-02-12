@@ -36,29 +36,24 @@ export class Entities {
     const bodyMatcap = textureLoader.load("/textures/body.png");
     bodyMatcap.colorSpace = THREE.SRGBColorSpace;
 
-    const splashScreen = textureLoader.load("/textures/splashScreen.png");
-    splashScreen.colorSpace = THREE.SRGBColorSpace;
-    splashScreen.flipY = false;
-    splashScreen.minFilter = THREE.NearestFilter;
-    splashScreen.magFilter = THREE.NearestFilter;
-
-    gltfLoader.load("/models/GameBoy-1.glb", (gltf) => {
+    gltfLoader.load("/models/DerpBoy.glb", (gltf) => {
       const model = gltf.scene;
 
-      const baseBody = model.children[0];
-      (baseBody as any).material = new THREE.MeshMatcapMaterial({
-        matcap: bodyMatcap,
-      });
+      model.children.forEach((child) => {
+        if (child.name === "targetBody") {
+          child.visible = false;
+        } else {
+          if ((child as any).isGroup) {
+            child.children.map((c) => {
+              c.castShadow = true;
+              c.receiveShadow = true;
+            });
+          }
 
-      const baseScreen = model.children[5];
-      (baseScreen as any).material = new THREE.MeshStandardMaterial({
-        map: splashScreen,
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
       });
-
-      // model.children.forEach((child) => {
-      //   child.castShadow = true;
-      //   child.receiveShadow = true;
-      // });
 
       model.position.copy(OBJECT_BASE_POSITION);
 
