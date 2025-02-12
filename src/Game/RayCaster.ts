@@ -16,24 +16,6 @@ export class RayCaster {
     this.initListeners();
   }
 
-  handleRestore() {
-    const { game } = this;
-
-    game.testing = false;
-    game.testingProgress = true;
-  }
-
-  handleFocus() {
-    const { game } = this;
-
-    game.testing = true;
-    game.testingCompleted = false;
-  }
-
-  handleStart() {
-    alert("@TODO");
-  }
-
   initListeners() {
     const { game, mouse } = this;
 
@@ -48,53 +30,23 @@ export class RayCaster {
     });
 
     window.addEventListener("mousedown", () => {
-      const { game, intersects } = this;
+      const { game } = this;
 
-      if (intersects.length > 0) {
-        if (!game.testing) {
-          const isTargetBody = intersects.some(
-            ({ object }) => object.name === "targetBody"
-          );
-
-          if (isTargetBody) {
-            if (!game.testingProgress) {
-              if (game.testing && game.testingCompleted) {
-                this.handleRestore();
-              } else {
-                this.handleFocus();
-              }
-            }
-          }
-        } else {
-          const isTargetScreen = intersects.some(
-            ({ object }) => object.name === "baseScreen"
-          );
-
-          if (isTargetScreen) {
-            this.handleStart();
-          } else {
-            this.handleRestore();
-          }
-        }
-      } else {
-        if (game.testing) {
-          this.handleRestore();
-        }
-      }
+      game.director.handleTrigger();
     });
   }
 
   handleIntersects() {
     const { intersects, game } = this;
 
-    if (intersects.length > 0 && game.testingMultiplier !== 0.2) {
+    if (intersects.length > 0) {
       document.getElementById("webglCanvas")!.classList.add("clickable");
 
-      game.testingMultiplier = 0.2;
-    } else if (intersects.length === 0 && game.testingMultiplier !== 1) {
+      game.director.handleMouseEnter();
+    } else {
       document.getElementById("webglCanvas")!.classList.remove("clickable");
 
-      game.testingMultiplier = 1;
+      game.director.handleMouseLeave();
     }
   }
 

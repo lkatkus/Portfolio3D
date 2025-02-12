@@ -1,4 +1,3 @@
-import * as THREE from "three";
 import { Lights } from "./Lights";
 import { Renderer } from "./Renderer";
 import { Scene } from "./Scene";
@@ -6,12 +5,13 @@ import { Camera } from "./Camera";
 import { Entities } from "./Entities";
 import { RayCaster } from "./RayCaster";
 import { Clock } from "./Clock";
+import { Director } from "./Director";
 
 export class Game {
   screen: { width: number; height: number };
 
   clock: Clock;
-
+  director: Director;
   scene: Scene;
   lights: Lights;
   renderer: Renderer;
@@ -19,15 +19,10 @@ export class Game {
   entities: Entities;
   rayCaster: RayCaster;
 
-  testing: boolean;
-  testingProgress: boolean;
-  testingCompleted: boolean;
-  testingPrevRotation: THREE.Euler | null;
-  testingMultiplier: number;
-
   constructor() {
     this.screen = this.initScreen();
 
+    this.director = new Director(this);
     this.clock = new Clock();
     this.scene = new Scene(this);
     this.lights = new Lights(this);
@@ -37,12 +32,6 @@ export class Game {
     this.rayCaster = new RayCaster(this);
 
     this.initListeners();
-
-    this.testing = false;
-    this.testingProgress = false;
-    this.testingCompleted = false;
-    this.testingPrevRotation = null;
-    this.testingMultiplier = 1.2;
   }
 
   initScreen() {
@@ -69,10 +58,10 @@ export class Game {
   }
 
   update() {
-    const { clock, entities, rayCaster } = this;
+    const { clock, director, rayCaster } = this;
 
     clock.update();
-    entities.update();
+    director.update();
     rayCaster.update();
   }
 
