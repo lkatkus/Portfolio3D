@@ -17,6 +17,7 @@ export class Lights {
     directionalLight.shadow.mapSize.width = 1024 * 2;
     directionalLight.shadow.mapSize.height = 1024 * 2;
     directionalLight.shadow.radius = 10;
+    directionalLight.shadow.intensity = 0.2;
 
     // directionalLight.shadow.camera.far = 6;
     // directionalLight.shadow.camera.left = -2;

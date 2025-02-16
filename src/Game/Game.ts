@@ -65,6 +65,12 @@ export class Game {
     rayCaster.update();
   }
 
+  isPortrait() {
+    const { screen } = this;
+
+    return screen.height > screen.width;
+  }
+
   render() {
     const { renderer } = this;
 

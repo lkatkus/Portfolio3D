@@ -27,6 +27,8 @@ export class RayCaster {
       const y = -((mouseY / game.screen.height) * 2 - 1);
 
       mouse.set(x, y);
+
+      game.director.handleMouseMove();
     });
 
     window.addEventListener("mousedown", () => {

@@ -36,7 +36,7 @@ export class Entities {
       const model = gltf.scene;
 
       model.children.forEach((child) => {
-        if (child.name === "targetBody") {
+        if (child.name.includes("target")) {
           child.visible = false;
         } else {
           if ((child as any).isGroup) {

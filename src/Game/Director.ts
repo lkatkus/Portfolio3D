@@ -1,4 +1,11 @@
-import { OBJECT_BASE_POSITION, OBJECT_FOCUS_POSITION } from "./constants";
+import * as THREE from "three";
+import {
+  OBJECT_BASE_POSITION,
+  OBJECT_FOCUS_POSITION,
+  OBJECT_FOCUS_POSITION_MOBILE,
+  OBJECT_LINK_POSITION,
+  OBJECT_LINK_POSITION_MOBILE,
+} from "./constants";
 import gsap from "gsap";
 import type { Game } from "./Game";
 
@@ -7,6 +14,7 @@ enum Scenes {
   "TurnAround" = "TurnAround",
   "FocusIn" = "FocusIn",
   "FocusOut" = "FocusOut",
+  "FocusLink" = "FocusLink",
   "StartPlay" = "StartPlay",
   "Play" = "Play",
 }
@@ -70,34 +78,91 @@ export class Director {
 
     geometry.rotation.y += rotationDiff;
     geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
+
+    const time = clock.elapsedTime;
+    const wobbleAmount = 0.1;
+    const wobbleSpeed = 3;
+
+    geometry.rotation.x = wobbleAmount * Math.sin(time * wobbleSpeed);
+    geometry.rotation.z = wobbleAmount * Math.cos(time * wobbleSpeed);
   }
 
   focusIn() {
-    const { game } = this;
+    const { game, timeout } = this;
     const { entities } = game;
     const { group } = entities;
 
-    const geometry = group.children[0];
-    const timeline = gsap.timeline();
-    const tweenDuration = 0.3;
+    if (timeout === null) {
+      const focusPosition = game.isPortrait()
+        ? OBJECT_FOCUS_POSITION_MOBILE
+        : OBJECT_FOCUS_POSITION;
 
-    timeline
-      .to(geometry.rotation, {
-        x: 0,
-        y: 0,
-        z: 0,
-        duration: tweenDuration,
-      })
-      .to(
-        geometry.position,
-        {
-          x: OBJECT_FOCUS_POSITION.x,
-          y: OBJECT_FOCUS_POSITION.y,
-          z: OBJECT_FOCUS_POSITION.z,
+      const tweenDuration = 0.3;
+      const geometry = group.children[0];
+      const timeline = gsap.timeline({
+        defaults: {
           duration: tweenDuration,
+          onComplete: () => {
+            this.timeout = 1;
+          },
         },
-        "<"
-      );
+      });
+
+      timeline
+        .to(geometry.rotation, {
+          x: 0,
+          y: 0,
+          z: 0,
+        })
+        .to(
+          geometry.position,
+          {
+            x: focusPosition.x,
+            y: focusPosition.y,
+            z: focusPosition.z,
+          },
+          "<"
+        );
+    }
+  }
+
+  focusLink() {
+    const { game, timeout } = this;
+    const { entities } = game;
+    const { group } = entities;
+
+    if (timeout === null) {
+      const focusPosition = game.isPortrait()
+        ? OBJECT_LINK_POSITION_MOBILE
+        : OBJECT_LINK_POSITION;
+
+      const tweenDuration = 0.3;
+      const geometry = group.children[0];
+      const timeline = gsap.timeline({
+        defaults: {
+          duration: tweenDuration,
+          onComplete: () => {
+            this.timeout = 1;
+          },
+        },
+      });
+
+      timeline
+        .to(geometry.rotation, {
+          x: 0,
+          y: Math.PI,
+          z: 0,
+        })
+        .to(
+          geometry.position,
+          {
+            x: focusPosition.x,
+            y: focusPosition.y,
+            z: focusPosition.z,
+          },
+          "<"
+        );
+    }
   }
 
   focusOut() {
@@ -105,16 +170,19 @@ export class Director {
     const { entities } = game;
     const { group } = entities;
 
-    const geometry = group.children[0];
-    const timeline = gsap.timeline();
     const tweenDuration = 0.3;
+    const geometry = group.children[0];
+    const timeline = gsap.timeline({
+      defaults: {
+        duration: tweenDuration,
+      },
+    });
 
     timeline
       .to(geometry.position, {
         x: OBJECT_BASE_POSITION.x,
         y: OBJECT_BASE_POSITION.y,
         z: OBJECT_BASE_POSITION.z,
-        duration: tweenDuration,
       })
       .to(
         geometry.rotation,
@@ -122,8 +190,8 @@ export class Director {
           x: 0,
           y: 0,
           z: 0,
-          duration: tweenDuration,
           onComplete: () => {
+            this.timeout = null;
             this.currentScene = Scenes.TurnAround;
           },
         },
@@ -145,6 +213,8 @@ export class Director {
         onComplete: () => {
           this.timeout = null;
           this.currentScene = Scenes.Play;
+
+          // game.camera.currentCamera = game.camera.cameras[1];
         },
       });
     }
@@ -164,6 +234,8 @@ export class Director {
         return this.focusIn();
       case Scenes.FocusOut:
         return this.focusOut();
+      case Scenes.FocusLink:
+        return this.focusLink();
       case Scenes.StartPlay:
         return this.start();
       case Scenes.Play:
@@ -179,15 +251,21 @@ export class Director {
     const { rayCaster } = game;
 
     if (currentScene === Scenes.TurnAround) {
-      const isTargetBody = rayCaster.intersects.some(
-        ({ object }) => object.name === "targetBody"
-      );
+      const intersect = rayCaster.intersects[0];
 
-      if (isTargetBody) {
+      const isTargetBody = intersect.object.name === "targetBody";
+      const isTargetQr = intersect.object.name === "targetQr";
+
+      if (isTargetQr) {
+        this.currentScene = Scenes.FocusLink;
+      } else if (isTargetBody) {
         this.currentScene = Scenes.FocusIn;
       }
     }
+
     if (currentScene === Scenes.FocusIn) {
+      this.timeout = null;
+
       const isTargetScreen = rayCaster.intersects.some(
         ({ object }) => object.name === "baseScreen"
       );
@@ -197,6 +275,28 @@ export class Director {
       } else {
         this.currentScene = Scenes.FocusOut;
       }
+    }
+
+    if (currentScene === Scenes.FocusLink) {
+      this.currentScene = Scenes.FocusOut;
+    }
+  }
+
+  handleMouseMove() {
+    const { game, currentScene } = this;
+
+    if (currentScene === Scenes.FocusIn) {
+      const { entities, camera, rayCaster } = game;
+      const { group } = entities;
+
+      const mouse = rayCaster.mouse;
+      const target = new THREE.Vector3(
+        mouse.x * 0.05,
+        mouse.y * 0.05,
+        camera.currentCamera.position.z
+      );
+
+      group.lookAt(target);
     }
   }
 
