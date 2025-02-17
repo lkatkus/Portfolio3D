@@ -23,25 +23,22 @@ export class Renderer {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+    const composer = new EffectComposer(renderer);
+    composer.addPass(
+      new RenderPass(game.scene.currentScene, game.camera.currentCamera)
+    );
+    composer.addPass(
+      new UnrealBloomPass(
+        new THREE.Vector2(width, height),
+        0.75, // Strength
+        1, // Radius
+        0.85 // Threshold
+      )
+    );
+
     this.game = game;
     this.renderer = renderer;
-
-    // Setup post-processing
-    this.composer = new EffectComposer(renderer);
-
-    const renderPass = new RenderPass(
-      game.scene.currentScene,
-      game.camera.currentCamera
-    );
-    this.composer.addPass(renderPass);
-
-    const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(width, height),
-      0.75, // Strength
-      1, // Radius
-      0.85 // Threshold
-    );
-    this.composer.addPass(bloomPass);
+    this.composer = composer;
   }
 
   update() {
