@@ -10,7 +10,7 @@ export class Camera {
   constructor(game: Game) {
     const { width, height } = game.screen;
 
-    const camera = new THREE.PerspectiveCamera(65, width / height);
+    const camera = new THREE.PerspectiveCamera(50, width / height);
 
     camera.position.copy(CAMERA_POSITION);
     camera.lookAt(new THREE.Vector3(0, 0, 0));

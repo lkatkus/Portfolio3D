@@ -32,13 +32,27 @@ export class Entities {
   initModels() {
     const { game, group, gltfLoader } = this;
 
+    const emissiveMap = this.textureLoader.load(
+      "/textures/bodyScreenTextureBw.png"
+    );
+    emissiveMap.flipY = false;
+    emissiveMap.minFilter = THREE.NearestFilter;
+    emissiveMap.magFilter = THREE.NearestFilter;
+
     gltfLoader.load("/models/DerpBoy.glb", (gltf) => {
       const model = gltf.scene;
 
       model.children.forEach((child) => {
-        if (child.name.includes("target")) {
+        if (child.name.includes("target") || child.name.includes("light")) {
           child.visible = false;
         } else {
+          if (child.name === "baseScreen") {
+            (child as any).material.blending = THREE.NormalBlending;
+            (child as any).material.emissiveIntensity = 3.8;
+            (child as any).material.emissiveMap = emissiveMap;
+            (child as any).material.emissive = new THREE.Color("green");
+          }
+
           if ((child as any).isGroup) {
             child.children.map((c) => {
               c.castShadow = true;

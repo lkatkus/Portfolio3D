@@ -26,8 +26,8 @@ export class Game {
     this.clock = new Clock();
     this.scene = new Scene(this);
     this.lights = new Lights(this);
-    this.renderer = new Renderer(this);
     this.camera = new Camera(this);
+    this.renderer = new Renderer(this);
     this.entities = new Entities(this);
     this.rayCaster = new RayCaster(this);
 

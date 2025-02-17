@@ -208,7 +208,7 @@ export class Director {
       this.timeout = 1;
 
       gsap.to(group.position, {
-        z: 2,
+        z: 4,
         duration: 0.5,
         onComplete: () => {
           this.timeout = null;
