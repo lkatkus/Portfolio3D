@@ -1,9 +1,13 @@
 import * as THREE from "three";
 
-export const CAMERA_POSITION = new THREE.Vector3(0, 0, 2);
-export const CAMERA_GAME_POSITION = new THREE.Vector3(5, 5, 5);
+export const CAMERA_POSITION = new THREE.Vector3(0, -1, 2);
+export const CAMERA_GAME_POSITION = new THREE.Vector3(0, 3, 2);
 
-export const OBJECT_BASE_POSITION = new THREE.Vector3(0, 0, -1);
+export const PLACEHOLDER_POSITION = new THREE.Vector3(0, 3, 0);
+export const PLACEHOLDER_POSITION_MOBILE = new THREE.Vector3(0, 3, -1);
+
+export const OBJECT_BASE_POSITION = new THREE.Vector3(0, -1, -1);
+
 export const OBJECT_FOCUS_POSITION = new THREE.Vector3(
   CAMERA_POSITION.x,
   CAMERA_POSITION.y - 0.45,

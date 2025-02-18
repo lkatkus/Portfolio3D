@@ -215,27 +215,14 @@ export class Director {
 
   start() {
     const { game, timeout } = this;
-    const { entities } = game;
-    const { group } = entities;
+
+    game.rayCaster.disable();
 
     if (timeout === null) {
       this.timeout = 1;
 
-      gsap.to(group.position, {
-        z: 4,
-        duration: 0.5,
-        onComplete: () => {
-          this.timeout = null;
-          this.currentScene = Scenes.Play;
-
-          // game.camera.currentCamera = game.camera.cameras[1];
-        },
-      });
+      this.game.renderer.initTransition();
     }
-  }
-
-  play() {
-    this.currentScene = Scenes.Intro;
   }
 
   update() {
@@ -252,8 +239,6 @@ export class Director {
         return this.focusLink();
       case Scenes.StartPlay:
         return this.start();
-      case Scenes.Play:
-        return this.play();
 
       default:
         break;

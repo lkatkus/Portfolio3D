@@ -1,20 +1,26 @@
 import * as THREE from "three";
+import { RenderTransitionPass } from "three/addons/postprocessing/RenderTransitionPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import type { Game } from "./Game";
+import gsap from "gsap";
 
 const CONFIG = {
   sizeMultiplier: 1,
   strength: 0.75,
   radius: 1,
   threshold: 0.85,
+  transition: 1,
 };
 
 export class Renderer {
   game: Game;
   renderer: THREE.WebGLRenderer;
   composer: EffectComposer;
+
+  transitioning: boolean;
+  transitionProgress: number;
 
   constructor(game: Game) {
     const { width, height } = game.screen;
@@ -25,6 +31,9 @@ export class Renderer {
     this.game = game;
     this.renderer = renderer;
     this.composer = composer;
+
+    this.transitioning = false;
+    this.transitionProgress = 1;
 
     this.initPasses();
     this.initDebugger();
@@ -60,6 +69,17 @@ export class Renderer {
     composer.addPass(
       new RenderPass(game.scene.currentScene, game.camera.currentCamera)
     );
+
+    const renderTransitionPass = new RenderTransitionPass(
+      game.scene.currentScene,
+      game.camera.currentCamera,
+      game.scene.currentScene,
+      game.camera.cameras[1]
+    );
+
+    renderTransitionPass.setTransition(1);
+
+    this.composer.addPass(renderTransitionPass);
 
     composer.addPass(
       new UnrealBloomPass(
@@ -151,5 +171,17 @@ export class Renderer {
 
   render() {
     this.composer.render();
+  }
+
+  initTransition() {
+    const renderTransitionPass: any = this.composer.passes[1];
+
+    gsap.to(CONFIG, {
+      transition: 0,
+      duration: 0.5,
+      onUpdate: () => {
+        renderTransitionPass.setTransition(CONFIG.transition);
+      },
+    });
   }
 }

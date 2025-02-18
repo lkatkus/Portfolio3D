@@ -6,6 +6,7 @@ export class RayCaster {
   rayCaster: THREE.Raycaster;
   mouse: THREE.Vector2;
   intersects: THREE.Intersection[];
+  isDisabled: boolean;
   isHovering: boolean;
 
   constructor(game: Game) {
@@ -13,15 +14,16 @@ export class RayCaster {
     this.rayCaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2(-1, 1);
     this.intersects = [];
+    this.isDisabled = false;
     this.isHovering = false;
 
     this.initListeners();
   }
 
   initListeners() {
-    const { game, mouse } = this;
-
     window.addEventListener("mousemove", (e) => {
+      const { game, mouse, isDisabled } = this;
+
       const mouseX = e.clientX;
       const mouseY = e.clientY;
 
@@ -30,13 +32,17 @@ export class RayCaster {
 
       mouse.set(x, y);
 
-      game.director.handleMouseMove();
+      if (!isDisabled) {
+        game.director.handleMouseMove();
+      }
     });
 
     window.addEventListener("mousedown", () => {
-      const { game } = this;
+      const { game, isDisabled } = this;
 
-      game.director.handleTrigger();
+      if (!isDisabled) {
+        game.director.handleTrigger();
+      }
     });
   }
 
@@ -68,16 +74,28 @@ export class RayCaster {
     }
   }
 
+  disable() {
+    this.isDisabled = true;
+
+    const canvas = document.getElementById("webglCanvas")!;
+
+    if (canvas.classList.contains("clickable")) {
+      canvas.classList.remove("clickable");
+    }
+  }
+
   update() {
-    const { rayCaster, mouse, game } = this;
+    const { rayCaster, mouse, game, isDisabled } = this;
     const { camera, entities } = game;
 
-    rayCaster.setFromCamera(mouse, camera.currentCamera);
+    if (!isDisabled) {
+      rayCaster.setFromCamera(mouse, camera.currentCamera);
 
-    const objects = [entities.group];
+      const objects = [entities.group];
 
-    this.intersects = rayCaster.intersectObjects(objects);
+      this.intersects = rayCaster.intersectObjects(objects);
 
-    this.handleIntersects();
+      this.handleIntersects();
+    }
   }
 }

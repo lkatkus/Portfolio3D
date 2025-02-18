@@ -1,6 +1,11 @@
 import * as THREE from "three";
 import type { Game } from "./Game";
-import { CAMERA_GAME_POSITION, CAMERA_POSITION } from "./constants";
+import {
+  CAMERA_GAME_POSITION,
+  CAMERA_POSITION,
+  OBJECT_BASE_POSITION,
+  PLACEHOLDER_POSITION,
+} from "./constants";
 
 export class Camera {
   game: Game;
@@ -13,12 +18,12 @@ export class Camera {
     const camera = new THREE.PerspectiveCamera(50, width / height);
 
     camera.position.copy(CAMERA_POSITION);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    camera.lookAt(OBJECT_BASE_POSITION);
 
     const cameraGame = new THREE.PerspectiveCamera(75, width / height);
 
     cameraGame.position.copy(CAMERA_GAME_POSITION);
-    cameraGame.lookAt(new THREE.Vector3(0, 0, 0));
+    cameraGame.lookAt(PLACEHOLDER_POSITION);
 
     this.game = game;
     this.cameras = [camera, cameraGame];
@@ -26,10 +31,12 @@ export class Camera {
   }
 
   update() {
-    const { game, currentCamera } = this;
+    const { game, cameras } = this;
     const { screen } = game;
 
-    currentCamera.aspect = screen.width / screen.height;
-    currentCamera.updateProjectionMatrix();
+    cameras.forEach((camera) => {
+      camera.aspect = screen.width / screen.height;
+      camera.updateProjectionMatrix();
+    });
   }
 }
