@@ -3,15 +3,17 @@ import type { Game } from "./Game";
 
 export class RayCaster {
   game: Game;
-  mouse: THREE.Vector2;
   rayCaster: THREE.Raycaster;
+  mouse: THREE.Vector2;
   intersects: THREE.Intersection[];
+  isHovering: boolean;
 
   constructor(game: Game) {
     this.game = game;
-    this.intersects = [];
-    this.mouse = new THREE.Vector2(-1, 1);
     this.rayCaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2(-1, 1);
+    this.intersects = [];
+    this.isHovering = false;
 
     this.initListeners();
   }
@@ -39,16 +41,30 @@ export class RayCaster {
   }
 
   handleIntersects() {
-    const { intersects, game } = this;
+    const { game, intersects, isHovering } = this;
+
+    const canvas = document.getElementById("webglCanvas")!;
 
     if (intersects.length > 0) {
-      document.getElementById("webglCanvas")!.classList.add("clickable");
+      if (!canvas.classList.contains("clickable")) {
+        canvas.classList.add("clickable");
+      }
 
-      game.director.handleMouseEnter();
+      if (!isHovering) {
+        this.isHovering = true;
+
+        game.director.handleMouseEnter();
+      }
     } else {
-      document.getElementById("webglCanvas")!.classList.remove("clickable");
+      if (canvas.classList.contains("clickable")) {
+        canvas.classList.remove("clickable");
+      }
 
-      game.director.handleMouseLeave();
+      if (isHovering) {
+        this.isHovering = false;
+
+        game.director.handleMouseLeave();
+      }
     }
   }
 

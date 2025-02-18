@@ -6,10 +6,12 @@ import { Entities } from "./Entities";
 import { RayCaster } from "./RayCaster";
 import { Clock } from "./Clock";
 import { Director } from "./Director";
+import { Debug } from "./Debug";
 
 export class Game {
   screen: { width: number; height: number };
 
+  debug: Debug;
   clock: Clock;
   director: Director;
   scene: Scene;
@@ -22,6 +24,7 @@ export class Game {
   constructor() {
     this.screen = this.initScreen();
 
+    this.debug = new Debug();
     this.director = new Director(this);
     this.clock = new Clock();
     this.scene = new Scene(this);

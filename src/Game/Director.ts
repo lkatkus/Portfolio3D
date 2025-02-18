@@ -9,6 +9,10 @@ import {
 } from "./constants";
 import type { Game } from "./Game";
 
+const CONFIG = {
+  rotationMultiplier: 1,
+};
+
 enum Scenes {
   "Intro" = "Intro",
   "TurnAround" = "TurnAround",
@@ -28,10 +32,21 @@ export class Director {
     this.game = game;
     this.timeout = null;
     this.currentScene = null;
+
+    this.initDebugger();
   }
 
   init() {
     this.currentScene = Scenes.Intro;
+  }
+
+  initDebugger() {
+    const { game } = this;
+    const { debug } = game;
+
+    const folder = debug.gui.addFolder("Director");
+
+    folder.add(CONFIG, "rotationMultiplier").min(0).max(2).step(0.01);
   }
 
   reset() {
@@ -76,7 +91,7 @@ export class Director {
     const geometry = group.children[0];
     const rotationDiff = (Math.PI / 2) * clock.deltaTime;
 
-    geometry.rotation.y += rotationDiff;
+    geometry.rotation.y += rotationDiff * CONFIG.rotationMultiplier;
     geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
 
     const time = clock.elapsedTime;
@@ -252,7 +267,10 @@ export class Director {
     const hasIntersects = rayCaster.intersects.length > 0;
 
     if (!hasIntersects) {
-      if (currentScene === Scenes.FocusIn) {
+      if (
+        currentScene === Scenes.FocusIn ||
+        currentScene === Scenes.FocusLink
+      ) {
         this.currentScene = Scenes.FocusOut;
       }
 
@@ -310,10 +328,10 @@ export class Director {
   }
 
   handleMouseEnter() {
-    //
+    CONFIG.rotationMultiplier = 0.25;
   }
 
   handleMouseLeave() {
-    //
+    CONFIG.rotationMultiplier = 1;
   }
 }
