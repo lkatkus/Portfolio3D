@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import gsap from "gsap";
 import {
   OBJECT_BASE_POSITION,
   OBJECT_FOCUS_POSITION,
@@ -6,7 +7,6 @@ import {
   OBJECT_LINK_POSITION,
   OBJECT_LINK_POSITION_MOBILE,
 } from "./constants";
-import gsap from "gsap";
 import type { Game } from "./Game";
 
 enum Scenes {
@@ -93,6 +93,8 @@ export class Director {
     const { group } = entities;
 
     if (timeout === null) {
+      this.timeout = 1;
+
       const focusPosition = game.isPortrait()
         ? OBJECT_FOCUS_POSITION_MOBILE
         : OBJECT_FOCUS_POSITION;
@@ -102,9 +104,6 @@ export class Director {
       const timeline = gsap.timeline({
         defaults: {
           duration: tweenDuration,
-          onComplete: () => {
-            this.timeout = 1;
-          },
         },
       });
 
@@ -249,6 +248,16 @@ export class Director {
   handleTrigger() {
     const { game, currentScene } = this;
     const { rayCaster } = game;
+
+    const hasIntersects = rayCaster.intersects.length > 0;
+
+    if (!hasIntersects) {
+      if (currentScene === Scenes.FocusIn) {
+        this.currentScene = Scenes.FocusOut;
+      }
+
+      return;
+    }
 
     if (currentScene === Scenes.TurnAround) {
       const intersect = rayCaster.intersects[0];
