@@ -9,7 +9,11 @@ import { Director } from "./Director";
 import { Debug } from "./Debug";
 
 export class Game {
-  screen: { width: number; height: number };
+  screen: {
+    width: number;
+    height: number;
+    aspectRatio: number;
+  };
 
   debug: Debug;
   clock: Clock;
@@ -41,6 +45,7 @@ export class Game {
     return {
       width: window.innerWidth,
       height: window.innerHeight,
+      aspectRatio: window.innerWidth / window.innerHeight,
     };
   }
 
@@ -51,6 +56,7 @@ export class Game {
       const updatedScreen = {
         width: window.innerWidth,
         height: window.innerHeight,
+        aspectRatio: window.innerWidth / window.innerHeight,
       };
 
       this.screen = updatedScreen;

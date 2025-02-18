@@ -19,6 +19,18 @@ export class Renderer {
   constructor(game: Game) {
     const { width, height } = game.screen;
 
+    const renderer = this.initRenderer(width, height);
+    const composer = this.initComposer(renderer);
+
+    this.game = game;
+    this.renderer = renderer;
+    this.composer = composer;
+
+    this.initPasses();
+    this.initDebugger();
+  }
+
+  initRenderer(width: number, height: number) {
     const canvas = document.querySelector("#webglCanvas")!;
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 
@@ -32,10 +44,23 @@ export class Renderer {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+    return renderer;
+  }
+
+  initComposer(renderer: THREE.WebGLRenderer) {
     const composer = new EffectComposer(renderer);
+
+    return composer;
+  }
+
+  initPasses() {
+    const { game, composer } = this;
+    const { width, height } = game.screen;
+
     composer.addPass(
       new RenderPass(game.scene.currentScene, game.camera.currentCamera)
     );
+
     composer.addPass(
       new UnrealBloomPass(
         new THREE.Vector2(width, height),
@@ -44,12 +69,6 @@ export class Renderer {
         CONFIG.threshold
       )
     );
-
-    this.game = game;
-    this.renderer = renderer;
-    this.composer = composer;
-
-    this.initDebugger();
   }
 
   initDebugger() {

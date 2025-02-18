@@ -15,19 +15,23 @@ export class Scene {
     this.currentScene = scene;
 
     this.createBackground();
-    this.createGridLines();
   }
 
   createBackground() {
+    const { game } = this;
+
     const geometry = new THREE.PlaneGeometry(2, 2);
     const material = new THREE.ShaderMaterial({
       uniforms: {
         u_topColor: { value: new THREE.Color(GRADIENT_TOP_COLOR) },
         u_bottomColor: { value: new THREE.Color(GRADIENT_BOTTOM_COLOR) },
+        u_gridColor: { value: new THREE.Color(GRADIENT_BOTTOM_COLOR) },
+        u_gridSize: { value: 13.0 },
+        u_lineWidth: { value: 0.0075 },
+        u_aspect: { value: game.screen.aspectRatio },
       },
       vertexShader: `
             varying vec2 vUV;
-
             void main() {
                 vUV = uv;
                 gl_Position = vec4(position, 1.0);
@@ -36,12 +40,33 @@ export class Scene {
       fragmentShader: `
             uniform vec3 u_topColor;
             uniform vec3 u_bottomColor;
+            uniform vec3 u_gridColor;
+            uniform float u_gridSize;
+            uniform float u_lineWidth;
+            uniform float u_aspect;
 
             varying vec2 vUV;
 
             void main() {
+                // Gradient background
                 float t = vUV.y;
                 vec3 color = mix(u_bottomColor, u_topColor, t);
+
+                // Adjust UV for aspect ratio and center the grid
+                vec2 gridUV = vUV;
+                gridUV.x *= u_aspect; // Keep square aspect
+                gridUV -= 0.5; // Center grid both horizontally and vertically
+
+                // Grid calculations
+                float gridX = abs(mod(gridUV.x * u_gridSize + 0.5, 1.0) - 0.5);
+                float gridY = abs(mod(gridUV.y * u_gridSize + 0.5, 1.0) - 0.5);
+                float lineX = step(gridX, u_lineWidth);
+                float lineY = step(gridY, u_lineWidth);
+                float grid = max(lineX, lineY);
+
+                // Blend grid over background
+                color = mix(color, u_gridColor, grid);
+
                 gl_FragColor = vec4(color, 1.0);
             }
         `,
@@ -50,37 +75,9 @@ export class Scene {
 
     const backgroundPlane = new THREE.Mesh(geometry, material);
     this.currentScene.add(backgroundPlane);
-  }
 
-  createGridLines() {
-    const rows = 50;
-    const cols = 50;
-    const spacing = 0.5;
-    const positions = [];
-
-    for (let y = -rows / 2; y <= rows / 2; y++) {
-      for (let x = -cols / 2; x < cols / 2; x++) {
-        positions.push(x * spacing, y * spacing, -5);
-        positions.push((x + 1) * spacing, y * spacing, -5);
-      }
-    }
-
-    for (let x = -cols / 2; x <= cols / 2; x++) {
-      for (let y = -rows / 2; y < rows / 2; y++) {
-        positions.push(x * spacing, y * spacing, -5);
-        positions.push(x * spacing, (y + 1) * spacing, -5);
-      }
-    }
-
-    const material = new THREE.LineBasicMaterial({
-      color: GRADIENT_BOTTOM_COLOR,
+    window.addEventListener("resize", () => {
+      material.uniforms.u_aspect.value = window.innerWidth / window.innerHeight;
     });
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(positions, 3)
-    );
-
-    this.currentScene.add(new THREE.LineSegments(geometry, material));
   }
 }
