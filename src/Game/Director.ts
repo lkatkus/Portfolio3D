@@ -19,8 +19,9 @@ enum Scenes {
   "FocusIn" = "FocusIn",
   "FocusOut" = "FocusOut",
   "FocusLink" = "FocusLink",
-  "StartPlay" = "StartPlay",
-  "Play" = "Play",
+  "ScrollToPlaceholder" = "ScrollToPlaceholder",
+  "ScrollToObject" = "ScrollToObject",
+  "Start" = "Start",
 }
 
 export class Director {
@@ -227,31 +228,38 @@ export class Director {
       );
   }
 
-  // start() {
-  //   const { game, timeout } = this;
-  //   const { operator } = game;
+  scrollToPlaceholder() {
+    const { game, timeout } = this;
+    const { operator, entities } = game;
+    const { group } = entities;
 
-  //   game.rayCaster.disable();
+    const geometry = group.children[0];
 
-  //   if (timeout === null) {
-  //     this.timeout = 1;
+    if (timeout === null) {
+      this.timeout = 1;
 
-  //     operator.currentCamera = operator.cameras[1];
-  //   }
-  // }
+      operator.move(0, 1, false, () => {
+        geometry.position.copy(OBJECT_BASE_POSITION);
+      });
+    }
+  }
 
-  start() {
+  scrollToObject() {
     const { game, timeout } = this;
     const { operator } = game;
 
     if (timeout === null) {
       this.timeout = 1;
 
-      operator.move(0, 2, () => {
-        operator.currentCamera.reset();
-        this.currentScene = Scenes.FocusIn;
+      operator.move(0, 1, true, () => {
+        this.timeout = null;
+        this.currentScene = Scenes.TurnAround;
       });
     }
+  }
+
+  start() {
+    //
   }
 
   update() {
@@ -266,7 +274,11 @@ export class Director {
         return this.focusOut();
       case Scenes.FocusLink:
         return this.focusLink();
-      case Scenes.StartPlay:
+      case Scenes.ScrollToPlaceholder:
+        return this.scrollToPlaceholder();
+      case Scenes.ScrollToObject:
+        return this.scrollToObject();
+      case Scenes.Start:
         return this.start();
 
       default:
@@ -312,7 +324,7 @@ export class Director {
       );
 
       if (isTargetScreen) {
-        this.currentScene = Scenes.StartPlay;
+        this.currentScene = Scenes.ScrollToPlaceholder;
       } else {
         this.currentScene = Scenes.FocusOut;
       }
@@ -320,6 +332,17 @@ export class Director {
 
     if (currentScene === Scenes.FocusLink) {
       this.currentScene = Scenes.FocusOut;
+    }
+
+    if (currentScene === Scenes.ScrollToPlaceholder) {
+      this.timeout = null;
+
+      const intersect = rayCaster.intersects[0];
+      const isTargetPlaceholder = intersect.object.name === "ComingSoon";
+
+      if (isTargetPlaceholder) {
+        this.currentScene = Scenes.ScrollToObject;
+      }
     }
   }
 

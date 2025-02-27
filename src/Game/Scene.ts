@@ -74,6 +74,8 @@ export class Scene {
     });
 
     const backgroundPlane = new THREE.Mesh(geometry, material);
+    backgroundPlane.frustumCulled = false;
+
     this.currentScene.add(backgroundPlane);
 
     window.addEventListener("resize", () => {

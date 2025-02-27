@@ -1,12 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Game } from "./Game";
-import {
-  CAMERA_GAME_POSITION,
-  CAMERA_POSITION,
-  OBJECT_BASE_POSITION,
-  PLACEHOLDER_POSITION,
-} from "./constants";
+import { CAMERA_POSITION, OBJECT_BASE_POSITION } from "./constants";
 import { Camera } from "./Camera";
 import { Track } from "./Track";
 import gsap from "gsap";
@@ -28,13 +23,7 @@ const getCamerasConfig = (
   {
     fov: 75,
     aspectRatio,
-    position: CAMERA_GAME_POSITION,
-    target: PLACEHOLDER_POSITION,
-  },
-  {
-    fov: 75,
-    aspectRatio,
-    position: new THREE.Vector3(10, 10, 10),
+    position: new THREE.Vector3(5, 5, 5),
     target: OBJECT_BASE_POSITION,
   },
 ];
@@ -49,7 +38,7 @@ export class Operator {
   cameras: Camera[];
   currentCamera: Camera;
 
-  tracks: Track[];
+  tracks: [Track, Track][];
 
   constructor(game: Game) {
     this.game = game;
@@ -101,19 +90,26 @@ export class Operator {
   private async initTracks() {
     const { game, helpersGroup, gltfLoader } = this;
 
-    const config: { name: string; src: string }[] = [
-      { name: "testPath", src: "/models/PathObject.glb" },
+    const config: { position: string; target: string; src: string }[] = [
+      {
+        position: "placeholderPositionPath",
+        target: "placeholderTargetPath",
+        src: "/models/PathObject.glb",
+      },
     ];
 
-    const loadedTracks: Track[] = await Promise.all<Track>(
-      config.map(
-        ({ name, src }) =>
+    const loadedTracks: [Track, Track][] = await Promise.all(
+      config.map<Promise<[Track, Track]>>(
+        ({ position, target, src }) =>
           new Promise((resolve) => {
             gltfLoader.load(src, (gltf) => {
-              const model: any = gltf.scene.getObjectByName(name)!;
-              const track = new Track(model);
+              const positionModel: any = gltf.scene.getObjectByName(position)!;
+              const targetModel: any = gltf.scene.getObjectByName(target)!;
 
-              resolve(track);
+              const positionTrack = new Track(positionModel);
+              const targetTrack = new Track(targetModel);
+
+              resolve([positionTrack, targetTrack]);
             });
           })
       )
@@ -121,10 +117,9 @@ export class Operator {
 
     this.tracks = loadedTracks;
 
-    loadedTracks.forEach((track) => {
-      if (track.mesh) {
-        helpersGroup.add(track.mesh);
-      }
+    loadedTracks.forEach(([positionTrack, targetTrack]) => {
+      helpersGroup.add(positionTrack.mesh);
+      helpersGroup.add(targetTrack.mesh);
     });
 
     game.director.setReady("operator");
@@ -162,36 +157,60 @@ export class Operator {
     folder.add(debugConfig, "toggleTrackHelpers");
   }
 
-  move(trackIndex: number, duration: number, cb: () => void) {
+  move(
+    trackIndex: number,
+    duration: number,
+    reverse: boolean = false,
+    cb?: () => void
+  ) {
     const { tracks, currentCamera } = this;
 
     const track = tracks[trackIndex];
 
     if (track) {
-      const progress = { t: 0 };
-      const trackCurve = track.curve;
       const camera = currentCamera.camera;
+      const positionCurve = track[0].curve;
+      const targetCurve = track[1].curve;
+      const progress = { t: reverse ? 1 : 0 };
 
       gsap.to(progress, {
-        t: 1,
+        t: reverse ? 0 : 1,
         duration,
-        // repeat: -1,
         onUpdate: () => {
-          const positionOnTrack = trackCurve.getPoint(progress.t);
-          const directionOnTrack = trackCurve
-            .getTangent(progress.t)
-            .normalize();
+          const positionOnTrack = positionCurve.getPoint(progress.t);
+          const targetOnTrack = targetCurve.getPoint(progress.t);
 
+          camera.lookAt(targetOnTrack);
           camera.position.copy(positionOnTrack);
-          camera.lookAt(directionOnTrack);
         },
         onComplete: () => {
-          cb();
+          cb && cb();
         },
       });
     } else {
       // @TODO maybe throw or call cb?
     }
+  }
+
+  track(duration: number, start: THREE.Vector3, end: THREE.Vector3) {
+    const { currentCamera } = this;
+
+    const progress = { t: 0 };
+    const camera = currentCamera.camera;
+
+    gsap.to(progress, {
+      t: 1,
+      duration,
+      onUpdate: () => {
+        const currentTarget = new THREE.Vector3().lerpVectors(
+          start,
+          end,
+          progress.t
+        );
+
+        camera.lookAt(currentTarget);
+      },
+    });
   }
 
   update() {
