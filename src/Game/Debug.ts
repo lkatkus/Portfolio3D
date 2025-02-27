@@ -22,7 +22,7 @@ export class Debug {
     }
 
     window.addEventListener("keydown", (e) => {
-      if (e.key === "d") {
+      if (e.key === "h") {
         if (gui._hidden) {
           gui.show();
         } else {

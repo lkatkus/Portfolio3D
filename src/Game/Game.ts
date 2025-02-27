@@ -29,10 +29,10 @@ export class Game {
     this.screen = this.initScreen();
 
     this.debug = new Debug();
-    this.director = new Director(this);
-    this.operator = new Operator(this);
     this.clock = new Clock();
     this.scene = new Scene(this);
+    this.director = new Director(this);
+    this.operator = new Operator(this);
     this.lights = new Lights(this);
     this.renderer = new Renderer(this);
     this.entities = new Entities(this);

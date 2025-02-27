@@ -89,7 +89,7 @@ export class RayCaster {
     const { operator, entities } = game;
 
     if (!isDisabled) {
-      rayCaster.setFromCamera(mouse, operator.current.camera);
+      rayCaster.setFromCamera(mouse, operator.currentCamera.camera);
 
       const objects = [entities.group];
 

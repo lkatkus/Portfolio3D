@@ -27,11 +27,13 @@ export class Director {
   game: Game;
   timeout: number | null;
   currentScene: Scenes | null;
+  status: { operator: boolean; producer: boolean };
 
   constructor(game: Game) {
     this.game = game;
     this.timeout = null;
     this.currentScene = null;
+    this.status = { operator: false, producer: false };
 
     this.initDebugger();
   }
@@ -44,9 +46,21 @@ export class Director {
     const { game } = this;
     const { debug } = game;
 
-    const folder = debug.gui.addFolder("Director");
+    const folder = debug.gui.addFolder("Director").close();
 
     folder.add(CONFIG, "rotationMultiplier").min(0).max(2).step(0.01);
+  }
+
+  setReady(target: "operator" | "producer") {
+    this.status[target] = true;
+
+    this.checkReady();
+  }
+
+  checkReady() {
+    if (Object.values(this.status).every((value) => value === true)) {
+      this.init();
+    }
   }
 
   reset() {
@@ -140,41 +154,6 @@ export class Director {
     }
   }
 
-  // focusIn() {
-  //   const { game, timeout } = this;
-  //   const { entities } = game;
-  //   const { group, paths } = entities;
-
-  //   if (timeout === null) {
-  //     this.timeout = 1;
-
-  //     const geometry = group.children[1];
-  //     const path = paths[0];
-
-  //     const progress = { t: 1 };
-
-  //     gsap.to(progress, {
-  //       t: 0,
-  //       duration: 3,
-  //       // repeat: -1,
-  //       onUpdate: () => {
-  //         geometry.position.copy(path.getPoint(progress.t));
-
-  //         geometry.lookAt(
-  //           geometry.position
-  //             .clone()
-  //             .add(path.getTangent(progress.t).normalize())
-  //         );
-  //       },
-  //       // onComplete: () => {
-  //       //   setTimeout(() => {
-  //       //     this.timeout = null;
-  //       //   }, 1000);
-  //       // },
-  //     });
-  //   }
-  // }
-
   focusLink() {
     const { game, timeout } = this;
     const { entities } = game;
@@ -248,16 +227,30 @@ export class Director {
       );
   }
 
+  // start() {
+  //   const { game, timeout } = this;
+  //   const { operator } = game;
+
+  //   game.rayCaster.disable();
+
+  //   if (timeout === null) {
+  //     this.timeout = 1;
+
+  //     operator.currentCamera = operator.cameras[1];
+  //   }
+  // }
+
   start() {
     const { game, timeout } = this;
     const { operator } = game;
 
-    game.rayCaster.disable();
-
     if (timeout === null) {
       this.timeout = 1;
 
-      operator.current = operator.cameras[1];
+      operator.move(0, 2, () => {
+        operator.currentCamera.reset();
+        this.currentScene = Scenes.FocusIn;
+      });
     }
   }
 
@@ -341,7 +334,7 @@ export class Director {
       const target = new THREE.Vector3(
         mouse.x * 0.05,
         mouse.y * 0.05,
-        operator.current.camera.position.z
+        operator.currentCamera.camera.position.z
       );
 
       group.lookAt(target);

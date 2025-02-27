@@ -31,7 +31,7 @@ export class Renderer {
     const { operator } = game;
 
     const canvas: any = document.querySelector("#webglCanvas")!;
-    const controls = new OrbitControls(operator.current.camera, canvas);
+    const controls = new OrbitControls(operator.currentCamera.camera, canvas);
 
     return controls;
   }
@@ -63,7 +63,7 @@ export class Renderer {
     const { game } = this;
     const { debug } = game;
 
-    const folder = debug.gui.addFolder("Renderer");
+    const folder = debug.gui.addFolder("Renderer").close();
     const resolutionFolder = folder.addFolder("Resolution");
 
     resolutionFolder
@@ -99,6 +99,6 @@ export class Renderer {
     const { game, renderer } = this;
     const { scene, operator } = game;
 
-    renderer.render(scene.currentScene, operator.current.camera);
+    renderer.render(scene.currentScene, operator.currentCamera.camera);
   }
 }

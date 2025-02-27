@@ -10,7 +10,6 @@ import {
 export class Entities {
   game: Game;
   group: THREE.Group;
-  paths: THREE.CatmullRomCurve3[];
   gltfLoader: GLTFLoader;
   textureLoader: THREE.TextureLoader;
 
@@ -19,7 +18,6 @@ export class Entities {
     this.textureLoader = new THREE.TextureLoader();
     this.gltfLoader = new GLTFLoader();
     this.group = this.initGroup();
-    this.paths = [];
 
     this.initModels();
   }
@@ -97,46 +95,6 @@ export class Entities {
           resolve(model);
         });
       }),
-      new Promise((resolve) => {
-        gltfLoader.load("/models/PathObject.glb", (gltf) => {
-          const model: any = gltf.scene.getObjectByName("testPath")!;
-
-          const positions = model.geometry.attributes.position.array;
-          const curvePoints = [];
-
-          // Extract points from the vertex positions
-          for (let i = 0; i < positions.length; i += 3) {
-            curvePoints.push(
-              new THREE.Vector3(
-                positions[i],
-                positions[i + 1],
-                positions[i + 2]
-              )
-            );
-          }
-
-          // Create a smooth path using Catmull-Rom curve
-          const curve = new THREE.CatmullRomCurve3(curvePoints);
-
-          // Optional: Visualize the path
-          const curveGeometry = new THREE.TubeGeometry(
-            curve,
-            100,
-            0.1,
-            8,
-            false
-          );
-          const curveMaterial = new THREE.MeshBasicMaterial({
-            color: 0xff0000,
-            wireframe: true,
-          });
-          const curveMesh = new THREE.Mesh(curveGeometry, curveMaterial);
-
-          this.paths.push(curve);
-
-          resolve(curveMesh);
-        });
-      }),
     ]);
 
     loadedModels.forEach((model: any) => {
@@ -145,7 +103,7 @@ export class Entities {
       }
     });
 
-    game.director.init();
+    game.director.setReady("producer");
   }
 
   update() {
