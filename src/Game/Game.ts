@@ -1,12 +1,12 @@
 import { Lights } from "./Lights";
 import { Renderer } from "./Renderer";
 import { Scene } from "./Scene";
-import { Camera } from "./Camera";
 import { Entities } from "./Entities";
 import { RayCaster } from "./RayCaster";
 import { Clock } from "./Clock";
 import { Director } from "./Director";
 import { Debug } from "./Debug";
+import { Operator } from "./Operator";
 
 export class Game {
   screen: {
@@ -18,10 +18,10 @@ export class Game {
   debug: Debug;
   clock: Clock;
   director: Director;
+  operator: Operator;
   scene: Scene;
   lights: Lights;
   renderer: Renderer;
-  camera: Camera;
   entities: Entities;
   rayCaster: RayCaster;
 
@@ -30,10 +30,10 @@ export class Game {
 
     this.debug = new Debug();
     this.director = new Director(this);
+    this.operator = new Operator(this);
     this.clock = new Clock();
     this.scene = new Scene(this);
     this.lights = new Lights(this);
-    this.camera = new Camera(this);
     this.renderer = new Renderer(this);
     this.entities = new Entities(this);
     this.rayCaster = new RayCaster(this);
@@ -50,7 +50,7 @@ export class Game {
   }
 
   initListeners() {
-    const { camera, renderer } = this;
+    const { operator, renderer } = this;
 
     window.addEventListener("resize", () => {
       const updatedScreen = {
@@ -61,7 +61,7 @@ export class Game {
 
       this.screen = updatedScreen;
 
-      camera.update();
+      operator.update();
       renderer.update();
     });
   }

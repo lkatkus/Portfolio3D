@@ -140,6 +140,41 @@ export class Director {
     }
   }
 
+  // focusIn() {
+  //   const { game, timeout } = this;
+  //   const { entities } = game;
+  //   const { group, paths } = entities;
+
+  //   if (timeout === null) {
+  //     this.timeout = 1;
+
+  //     const geometry = group.children[1];
+  //     const path = paths[0];
+
+  //     const progress = { t: 1 };
+
+  //     gsap.to(progress, {
+  //       t: 0,
+  //       duration: 3,
+  //       // repeat: -1,
+  //       onUpdate: () => {
+  //         geometry.position.copy(path.getPoint(progress.t));
+
+  //         geometry.lookAt(
+  //           geometry.position
+  //             .clone()
+  //             .add(path.getTangent(progress.t).normalize())
+  //         );
+  //       },
+  //       // onComplete: () => {
+  //       //   setTimeout(() => {
+  //       //     this.timeout = null;
+  //       //   }, 1000);
+  //       // },
+  //     });
+  //   }
+  // }
+
   focusLink() {
     const { game, timeout } = this;
     const { entities } = game;
@@ -215,13 +250,14 @@ export class Director {
 
   start() {
     const { game, timeout } = this;
+    const { operator } = game;
 
     game.rayCaster.disable();
 
     if (timeout === null) {
       this.timeout = 1;
 
-      this.game.renderer.initTransition();
+      operator.current = operator.cameras[1];
     }
   }
 
@@ -298,14 +334,14 @@ export class Director {
     const { game, currentScene } = this;
 
     if (currentScene === Scenes.FocusIn) {
-      const { entities, camera, rayCaster } = game;
+      const { entities, operator, rayCaster } = game;
       const { group } = entities;
 
       const mouse = rayCaster.mouse;
       const target = new THREE.Vector3(
         mouse.x * 0.05,
         mouse.y * 0.05,
-        camera.currentCamera.position.z
+        operator.current.camera.position.z
       );
 
       group.lookAt(target);
