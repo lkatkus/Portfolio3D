@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import type { Game } from "./Game";
 
@@ -24,16 +23,6 @@ export class Renderer {
     this.renderer = renderer;
 
     this.initDebugger();
-  }
-
-  initControls() {
-    const { game } = this;
-    const { operator } = game;
-
-    const canvas: any = document.querySelector("#webglCanvas")!;
-    const controls = new OrbitControls(operator.currentCamera.camera, canvas);
-
-    return controls;
   }
 
   initRenderer(width: number, height: number) {

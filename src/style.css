@@ -15,8 +15,13 @@ body {
   outline: none;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .clickable {
   cursor: pointer;
+}
+
+.controlled {
+  border: 5px solid orangered;
 }

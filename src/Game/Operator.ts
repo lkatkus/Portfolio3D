@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MapControls } from "three/addons/controls/MapControls.js";
 import type { Game } from "./Game";
 import { CAMERA_POSITION, OBJECT_BASE_POSITION } from "./constants";
 import { Camera } from "./Camera";
@@ -31,8 +32,8 @@ const getCamerasConfig = (
 export class Operator {
   game: Game;
   gltfLoader: GLTFLoader;
+  controls: MapControls;
 
-  showHelpersGroup: boolean;
   helpersGroup: THREE.Group;
 
   cameras: Camera[];
@@ -44,11 +45,11 @@ export class Operator {
     this.game = game;
     this.gltfLoader = new GLTFLoader();
 
-    this.showHelpersGroup = false;
     this.helpersGroup = this.initGroup();
 
     this.cameras = this.initCameras();
     this.currentCamera = this.initCurrentCamera();
+    this.controls = this.initControls();
 
     this.tracks = [];
 
@@ -125,13 +126,39 @@ export class Operator {
     game.director.setReady("operator");
   }
 
+  initControls() {
+    const { currentCamera } = this;
+
+    const canvas: any = document.querySelector("#webglCanvas")!;
+    const controls = new MapControls(currentCamera.camera, canvas);
+
+    controls.enabled = false;
+
+    return controls;
+  }
+
   toggleHelpers() {
-    if (!this.showHelpersGroup) {
-      this.showHelpersGroup = true;
+    if (!this.helpersGroup.visible) {
       this.helpersGroup.visible = true;
     } else {
-      this.showHelpersGroup = false;
       this.helpersGroup.visible = false;
+    }
+  }
+
+  toggleControls() {
+    if (this.controls) {
+      const canvas: any = document.querySelector("#webglCanvas")!;
+
+      if (this.controls.enabled) {
+        console.log("DISABLE");
+
+        canvas.classList.remove("controlled");
+        this.controls.enabled = false;
+      } else {
+        console.log("ENABLE");
+        canvas.classList.add("controlled");
+        this.controls.enabled = true;
+      }
     }
   }
 
@@ -145,6 +172,7 @@ export class Operator {
     const debugConfig = {
       currentCamera: 0,
       toggleTrackHelpers: this.toggleHelpers.bind(this),
+      toggleControls: this.toggleControls.bind(this),
     };
 
     folder
@@ -154,6 +182,7 @@ export class Operator {
         this.currentCamera = cameras[index];
       });
 
+    folder.add(debugConfig, "toggleControls");
     folder.add(debugConfig, "toggleTrackHelpers");
   }
 
@@ -214,6 +243,15 @@ export class Operator {
   }
 
   update() {
+    const { game, controls } = this;
+    const { clock } = game;
+
+    if (controls && controls.enabled) {
+      controls.update(clock.deltaTime);
+    }
+  }
+
+  updateCameras() {
     const { game, cameras } = this;
     const { screen } = game;
 

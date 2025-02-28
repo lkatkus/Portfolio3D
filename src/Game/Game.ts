@@ -61,17 +61,18 @@ export class Game {
 
       this.screen = updatedScreen;
 
-      operator.update();
+      operator.updateCameras();
       renderer.update();
     });
   }
 
   update() {
-    const { clock, director, rayCaster } = this;
+    const { clock, director, operator, rayCaster } = this;
 
     clock.update();
     director.update();
     rayCaster.update();
+    operator.update();
   }
 
   isPortrait() {
