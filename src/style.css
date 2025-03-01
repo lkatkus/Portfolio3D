@@ -25,3 +25,24 @@ body {
 .controlled {
   border: 5px solid orangered;
 }
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Show overlay only in portrait mode */
+@media screen and (orientation: portrait) {
+  #overlay {
+    display: flex;
+  }
+}

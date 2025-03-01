@@ -1,17 +1,14 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Game } from "./Game";
-import {
-  OBJECT_BASE_POSITION,
-  PLACEHOLDER_POSITION,
-  PLACEHOLDER_POSITION_MOBILE,
-} from "./constants";
 
 export class Entities {
   game: Game;
   group: THREE.Group;
   gltfLoader: GLTFLoader;
   textureLoader: THREE.TextureLoader;
+  mixers: THREE.AnimationMixer[];
+  actions: THREE.AnimationAction[];
 
   constructor(game: Game) {
     this.game = game;
@@ -19,7 +16,30 @@ export class Entities {
     this.gltfLoader = new GLTFLoader();
     this.group = this.initGroup();
 
+    this.mixers = [];
+    this.actions = [];
+
     this.initModels();
+  }
+
+  private initDebugger() {
+    const { game, actions } = this;
+    const { debug } = game;
+
+    const folder = debug.gui.addFolder("Producer");
+    const availableActions = actions.map((_, index) => index);
+
+    const debugConfig = {
+      currentAnimation: null,
+    };
+
+    folder
+      .add(debugConfig, "currentAnimation", availableActions)
+      .name("Active animation")
+      .onChange((index: any) => {
+        this.play(index, 2);
+        debugConfig.currentAnimation = null;
+      });
   }
 
   initGroup() {
@@ -34,63 +54,60 @@ export class Entities {
   }
 
   async initModels() {
-    const { game, group, gltfLoader, textureLoader } = this;
-
-    const matcap = textureLoader.load("/textures/matcaps/toxicGreen.png");
-    matcap.colorSpace = THREE.SRGBColorSpace;
-
-    const emissiveMap = textureLoader.load("/textures/bodyScreenTextureBw.png");
-    emissiveMap.flipY = false;
-    emissiveMap.minFilter = THREE.NearestFilter;
-    emissiveMap.magFilter = THREE.NearestFilter;
+    const { game, group, gltfLoader } = this;
 
     const loadedModels = await Promise.all([
       new Promise((resolve) => {
-        gltfLoader.load("/models/DerpBoy.glb", (gltf) => {
-          const model = gltf.scene;
+        gltfLoader.load("/models/IntroNoontendo.glb", (gltf) => {
+          const group = gltf.scene;
+          const model = group.children[0];
 
-          model.children.forEach((child) => {
-            if (child.name.includes("target") || child.name.includes("light")) {
-              child.visible = false;
-            } else {
-              if (child.name === "baseScreen") {
-                (child as any).material.blending = THREE.NormalBlending;
-                (child as any).material.emissiveIntensity = 3.8;
-                (child as any).material.emissiveMap = emissiveMap;
-                (child as any).material.emissive = new THREE.Color("green");
-              }
+          model.castShadow = true;
+          model.receiveShadow = true;
 
-              if ((child as any).isGroup) {
-                child.children.map((c) => {
-                  c.castShadow = true;
-                  c.receiveShadow = true;
-                });
-              }
+          const mixer = new THREE.AnimationMixer(model);
+          const action = mixer.clipAction(gltf.animations[0]);
 
-              child.castShadow = true;
-              child.receiveShadow = true;
-            }
-          });
+          action.setLoop(THREE.LoopOnce, 0);
+          action.clampWhenFinished = true;
 
-          model.position.copy(OBJECT_BASE_POSITION);
+          this.mixers.push(mixer);
+          this.actions.push(action);
+
+          resolve(model);
+        });
+      }),
+      // Act 1
+      new Promise((resolve) => {
+        gltfLoader.load("/models/act-1/act-1-title.glb", (gltf) => {
+          const group = gltf.scene;
+          const model = group;
+
+          model.position.copy(new THREE.Vector3(0, 18.5, 32));
 
           resolve(model);
         });
       }),
       new Promise((resolve) => {
-        gltfLoader.load("/models/ComingSoon.glb", (gltf) => {
+        gltfLoader.load("/models/act-1/act-1-button-start.glb", (gltf) => {
           const group = gltf.scene;
           const model = group.children[0];
 
-          (model as any).material = new THREE.MeshMatcapMaterial({
-            matcap: matcap,
-          });
+          model.position.copy(new THREE.Vector3(0, 16, 32));
 
-          const focusPosition = game.isPortrait()
-            ? PLACEHOLDER_POSITION_MOBILE
-            : PLACEHOLDER_POSITION;
+          resolve(model);
+        });
+      }),
+      new Promise((resolve) => {
+        gltfLoader.load("/models/IntroIsland.glb", (gltf) => {
+          const group = gltf.scene;
+          const model = group.children[0];
 
-          model.position.copy(focusPosition);
+          group.castShadow = true;
+          group.receiveShadow = true;
+
+          model.castShadow = true;
+          model.receiveShadow = true;
 
           resolve(model);
         });
@@ -103,10 +120,35 @@ export class Entities {
       }
     });
 
+    this.initDebugger();
+
     game.director.setReady("producer");
   }
 
   update() {
-    //
+    const { game, mixers } = this;
+    const { clock } = game;
+
+    mixers.forEach((mixer) => {
+      // @TODO fix any
+      const hasActiveActions = (mixer as any)._actions.some((action: any) =>
+        action.isRunning()
+      );
+
+      if (hasActiveActions) {
+        mixer.update(clock.deltaTime);
+      }
+    });
+  }
+
+  play(actionIndex: number, duration: number) {
+    const { actions } = this;
+
+    const action = actions[actionIndex];
+
+    if (action) {
+      action.setDuration(duration);
+      action.play();
+    }
   }
 }

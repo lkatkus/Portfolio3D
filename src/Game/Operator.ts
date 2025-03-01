@@ -93,9 +93,9 @@ export class Operator {
 
     const config: { position: string; target: string; src: string }[] = [
       {
-        position: "placeholderPositionPath",
-        target: "placeholderTargetPath",
-        src: "/models/PathObject.glb",
+        position: "introPositionPath",
+        target: "introTargetPath",
+        src: "/models/IntroPath.glb",
       },
     ];
 
@@ -150,12 +150,9 @@ export class Operator {
       const canvas: any = document.querySelector("#webglCanvas")!;
 
       if (this.controls.enabled) {
-        console.log("DISABLE");
-
         canvas.classList.remove("controlled");
         this.controls.enabled = false;
       } else {
-        console.log("ENABLE");
         canvas.classList.add("controlled");
         this.controls.enabled = true;
       }
@@ -184,6 +181,23 @@ export class Operator {
 
     folder.add(debugConfig, "toggleControls");
     folder.add(debugConfig, "toggleTrackHelpers");
+  }
+
+  initTrack(trackIndex: number) {
+    const { tracks, currentCamera } = this;
+
+    const track = tracks[trackIndex];
+
+    if (track) {
+      const camera = currentCamera.camera;
+      const positionCurve = track[0].curve;
+      const targetCurve = track[1].curve;
+      const positionOnTrack = positionCurve.getPoint(0);
+      const targetOnTrack = targetCurve.getPoint(0);
+
+      camera.position.copy(positionOnTrack);
+      camera.lookAt(targetOnTrack);
+    }
   }
 
   move(
@@ -219,27 +233,6 @@ export class Operator {
     } else {
       // @TODO maybe throw or call cb?
     }
-  }
-
-  track(duration: number, start: THREE.Vector3, end: THREE.Vector3) {
-    const { currentCamera } = this;
-
-    const progress = { t: 0 };
-    const camera = currentCamera.camera;
-
-    gsap.to(progress, {
-      t: 1,
-      duration,
-      onUpdate: () => {
-        const currentTarget = new THREE.Vector3().lerpVectors(
-          start,
-          end,
-          progress.t
-        );
-
-        camera.lookAt(currentTarget);
-      },
-    });
   }
 
   update() {

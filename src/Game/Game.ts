@@ -67,10 +67,11 @@ export class Game {
   }
 
   update() {
-    const { clock, director, operator, rayCaster } = this;
+    const { clock, director, entities: producer, operator, rayCaster } = this;
 
     clock.update();
     director.update();
+    producer.update();
     rayCaster.update();
     operator.update();
   }
