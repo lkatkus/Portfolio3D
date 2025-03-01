@@ -1,5 +1,8 @@
 import * as THREE from "three";
+import gsap from "gsap";
 import type { Game } from "./Game";
+
+const INTERACTIVE_ITEMS = ["act-1-button-start"];
 
 export class RayCaster {
   game: Game;
@@ -8,6 +11,7 @@ export class RayCaster {
   intersects: THREE.Intersection[];
   isDisabled: boolean;
   isHovering: boolean;
+  hoverTarget: THREE.Object3D | null;
 
   constructor(game: Game) {
     this.game = game;
@@ -16,6 +20,7 @@ export class RayCaster {
     this.intersects = [];
     this.isDisabled = false;
     this.isHovering = false;
+    this.hoverTarget = null;
 
     this.initListeners();
   }
@@ -52,24 +57,46 @@ export class RayCaster {
     const canvas = document.getElementById("webglCanvas")!;
 
     if (intersects.length > 0) {
-      if (!canvas.classList.contains("clickable")) {
+      this.hoverTarget = intersects[0].object.parent;
+
+      if (
+        this.hoverTarget &&
+        INTERACTIVE_ITEMS.includes(this.hoverTarget.name)
+      ) {
         canvas.classList.add("clickable");
-      }
 
-      if (!isHovering) {
-        this.isHovering = true;
+        if (!isHovering) {
+          this.isHovering = true;
 
-        game.director.handleMouseEnter();
+          game.director.handleMouseEnter();
+
+          gsap.to(this.hoverTarget.scale, {
+            x: 1.1,
+            y: 1.1,
+            z: 1.1,
+            duration: 0.3,
+            yoyo: true,
+            repeat: -1,
+          });
+        }
       }
     } else {
-      if (canvas.classList.contains("clickable")) {
-        canvas.classList.remove("clickable");
-      }
+      if (this.hoverTarget) {
+        if (isHovering) {
+          canvas.classList.remove("clickable");
 
-      if (isHovering) {
-        this.isHovering = false;
+          gsap.killTweensOf(this.hoverTarget.scale);
+          gsap.to(this.hoverTarget.scale, {
+            x: 1,
+            y: 1,
+            z: 1,
+            duration: 0.3,
+          });
 
-        game.director.handleMouseLeave();
+          this.isHovering = false;
+          this.hoverTarget = null;
+          game.director.handleMouseLeave();
+        }
       }
     }
   }

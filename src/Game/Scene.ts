@@ -14,7 +14,9 @@ export class Scene {
     this.game = game;
     this.currentScene = scene;
 
-    this.createBackground();
+    this.currentScene.background = new THREE.Color("#87cefa"); // Sky blue
+
+    // this.createBackground();
   }
 
   createBackground() {
