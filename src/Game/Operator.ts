@@ -20,7 +20,7 @@ const getCamerasConfig = (
   target: THREE.Vector3;
 }[] => [
   {
-    fov: 50,
+    fov: 35,
     aspectRatio,
     position: CAMERA_POSITION,
     target: OBJECT_BASE_POSITION,

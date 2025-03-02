@@ -83,7 +83,7 @@ export class Entities {
           const group = gltf.scene;
           const model = group;
 
-          model.position.copy(new THREE.Vector3(0, 75.25, 49));
+          model.position.copy(new THREE.Vector3(0, 75.25, 46));
 
           resolve(model);
         });
@@ -93,7 +93,7 @@ export class Entities {
           const group = gltf.scene;
           const model = group.children[0];
 
-          model.position.copy(new THREE.Vector3(0, 72.75, 49));
+          model.position.copy(new THREE.Vector3(0, 72.75, 46));
 
           resolve(model);
         });
