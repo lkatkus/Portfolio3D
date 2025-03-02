@@ -4,22 +4,13 @@ export class Track {
   curve: THREE.CatmullRomCurve3;
   mesh: THREE.Mesh;
 
-  constructor(model: any) {
-    this.curve = this.initCurve(model);
+  constructor(points: THREE.Vector3[]) {
+    this.curve = this.initCurve(points);
     this.mesh = this.initMesh();
   }
 
-  private initCurve(model: any) {
-    const positions = model.geometry.attributes.position.array;
-    const curvePoints = [];
-
-    for (let i = 0; i < positions.length; i += 3) {
-      curvePoints.push(
-        new THREE.Vector3(positions[i], positions[i + 1], positions[i + 2])
-      );
-    }
-
-    const curve = new THREE.CatmullRomCurve3(curvePoints);
+  private initCurve(points: THREE.Vector3[]) {
+    const curve = new THREE.CatmullRomCurve3(points);
 
     return curve;
   }

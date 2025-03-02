@@ -62,8 +62,8 @@ export class Entities {
           const group = gltf.scene;
           const model = group.children[0];
 
-          model.castShadow = true;
-          model.receiveShadow = true;
+          model.position.copy(new THREE.Vector3(-27, 41, -3));
+          model.scale.setScalar(2);
 
           const mixer = new THREE.AnimationMixer(model);
           const action = mixer.clipAction(gltf.animations[0]);
@@ -83,7 +83,7 @@ export class Entities {
           const group = gltf.scene;
           const model = group;
 
-          model.position.copy(new THREE.Vector3(0, 18.5, 32));
+          model.position.copy(new THREE.Vector3(0, 75.25, 49));
 
           resolve(model);
         });
@@ -93,21 +93,56 @@ export class Entities {
           const group = gltf.scene;
           const model = group.children[0];
 
-          model.position.copy(new THREE.Vector3(0, 16, 32));
+          model.position.copy(new THREE.Vector3(0, 72.75, 49));
 
           resolve(model);
         });
       }),
       new Promise((resolve) => {
-        gltfLoader.load("/models/IntroIsland.glb", (gltf) => {
+        gltfLoader.load("/models/act-1/act-1-world.glb", (gltf) => {
+          const group = gltf.scene;
+
+          resolve(group);
+        });
+      }),
+      new Promise((resolve) => {
+        gltfLoader.load("/models/act-1/act-1-bus-1.glb", (gltf) => {
           const group = gltf.scene;
           const model = group.children[0];
 
-          group.castShadow = true;
-          group.receiveShadow = true;
+          const mixer = new THREE.AnimationMixer(model);
+          this.mixers.push(mixer);
 
-          model.castShadow = true;
-          model.receiveShadow = true;
+          const action = mixer.clipAction(gltf.animations[1]);
+          action.play();
+
+          resolve(model);
+        });
+      }),
+      new Promise((resolve) => {
+        gltfLoader.load("/models/act-1/act-1-bus-2.glb", (gltf) => {
+          const group = gltf.scene;
+          const model = group.children[0];
+
+          const mixer = new THREE.AnimationMixer(model);
+          this.mixers.push(mixer);
+
+          const action = mixer.clipAction(gltf.animations[1]);
+          action.play();
+
+          resolve(model);
+        });
+      }),
+      new Promise((resolve) => {
+        gltfLoader.load("/models/act-1/act-1-train-1.glb", (gltf) => {
+          const group = gltf.scene;
+          const model = group.children[0];
+
+          const mixer = new THREE.AnimationMixer(model);
+          this.mixers.push(mixer);
+
+          const action = mixer.clipAction(gltf.animations[1]);
+          action.play();
 
           resolve(model);
         });

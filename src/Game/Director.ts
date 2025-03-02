@@ -88,16 +88,16 @@ export class Director {
 
   start() {
     const { game, timeout } = this;
-    const { operator, entities } = game;
+    const { operator } = game;
 
     if (timeout === null) {
       this.timeout = 1;
 
-      entities.play(0, 2);
-
-      operator.move(0, 2, false, () => {
+      operator.move(0, 1, false, false, () => {
         this.timeout = null;
         this.currentScene = Scenes.TurnAround;
+
+        operator.move(1, 20, false, true);
       });
     }
   }
@@ -129,10 +129,10 @@ export class Director {
     if (currentScene === Scenes.Intro) {
       const intersect = rayCaster.intersects[0];
 
-      const isTargetTitle =
+      const isTargetButtonStart =
         intersect.object.parent!.name === "act-1-button-start";
 
-      if (isTargetTitle) {
+      if (isTargetButtonStart) {
         this.currentScene = Scenes.Start;
       }
     }

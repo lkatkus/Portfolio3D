@@ -6,6 +6,10 @@ import { CAMERA_POSITION, OBJECT_BASE_POSITION } from "./constants";
 import { Camera } from "./Camera";
 import { Track } from "./Track";
 import gsap from "gsap";
+import {
+  INITIAL_CAMERA_INDEX,
+  CAMERA_TRACKS_CONFIG,
+} from "./Operator.constants";
 
 const getCamerasConfig = (
   aspectRatio: number
@@ -24,7 +28,7 @@ const getCamerasConfig = (
   {
     fov: 75,
     aspectRatio,
-    position: new THREE.Vector3(5, 5, 5),
+    position: new THREE.Vector3(20, 20, -20),
     target: OBJECT_BASE_POSITION,
   },
 ];
@@ -85,36 +89,21 @@ export class Operator {
   private initCurrentCamera() {
     const { cameras } = this;
 
-    return cameras[0];
+    return cameras[INITIAL_CAMERA_INDEX];
   }
 
   private async initTracks() {
-    const { game, helpersGroup, gltfLoader } = this;
+    const { game, helpersGroup } = this;
 
-    const config: { position: string; target: string; src: string }[] = [
-      {
-        position: "introPositionPath",
-        target: "introTargetPath",
-        src: "/models/IntroPath.glb",
-      },
-    ];
+    const loadedTracks: [Track, Track][] = CAMERA_TRACKS_CONFIG.map((track) => {
+      const positionTrackPoints = track[0];
+      const targetTrackPoints = track[1];
 
-    const loadedTracks: [Track, Track][] = await Promise.all(
-      config.map<Promise<[Track, Track]>>(
-        ({ position, target, src }) =>
-          new Promise((resolve) => {
-            gltfLoader.load(src, (gltf) => {
-              const positionModel: any = gltf.scene.getObjectByName(position)!;
-              const targetModel: any = gltf.scene.getObjectByName(target)!;
+      const positionTrack = new Track(positionTrackPoints);
+      const targetTrack = new Track(targetTrackPoints);
 
-              const positionTrack = new Track(positionModel);
-              const targetTrack = new Track(targetModel);
-
-              resolve([positionTrack, targetTrack]);
-            });
-          })
-      )
-    );
+      return [positionTrack, targetTrack];
+    });
 
     this.tracks = loadedTracks;
 
@@ -204,6 +193,7 @@ export class Operator {
     trackIndex: number,
     duration: number,
     reverse: boolean = false,
+    repeat: boolean = false,
     cb?: () => void
   ) {
     const { tracks, currentCamera } = this;
@@ -218,6 +208,8 @@ export class Operator {
 
       gsap.to(progress, {
         t: reverse ? 0 : 1,
+        repeat: repeat ? -1 : 0,
+        ease: "none",
         duration,
         onUpdate: () => {
           const positionOnTrack = positionCurve.getPoint(progress.t);
