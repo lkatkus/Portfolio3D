@@ -73,7 +73,7 @@ export class Director {
     const { group } = entities;
 
     const geometry = group.children[0];
-    const rotationDiff = (Math.PI / 2) * clock.deltaTime;
+    const rotationDiff = Math.PI * clock.deltaTime;
 
     geometry.rotation.y += rotationDiff * CONFIG.rotationMultiplier;
     geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
@@ -93,7 +93,7 @@ export class Director {
     if (timeout === null) {
       this.timeout = 1;
 
-      operator.move(0, 1, false, false, () => {
+      operator.move(0, 2, false, false, () => {
         this.timeout = null;
         this.currentScene = Scenes.TurnAround;
 

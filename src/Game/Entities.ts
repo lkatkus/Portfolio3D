@@ -58,21 +58,11 @@ export class Entities {
 
     const loadedModels = await Promise.all([
       new Promise((resolve) => {
-        gltfLoader.load("/models/IntroNoontendo.glb", (gltf) => {
+        gltfLoader.load("/models/act-1/act-1-logo.glb", (gltf) => {
           const group = gltf.scene;
           const model = group.children[0];
 
-          model.position.copy(new THREE.Vector3(-27, 41, -3));
-          model.scale.setScalar(2);
-
-          const mixer = new THREE.AnimationMixer(model);
-          const action = mixer.clipAction(gltf.animations[0]);
-
-          action.setLoop(THREE.LoopOnce, 0);
-          action.clampWhenFinished = true;
-
-          this.mixers.push(mixer);
-          this.actions.push(action);
+          model.position.copy(new THREE.Vector3(-28, 38, -3));
 
           resolve(model);
         });
