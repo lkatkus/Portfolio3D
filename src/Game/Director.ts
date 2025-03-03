@@ -27,6 +27,9 @@ export class Director {
   }
 
   init() {
+    const loaderEl = document.getElementById("loader")!;
+    loaderEl.classList.add("hidden");
+
     this.game.operator.initTrack(0);
     this.currentScene = Scenes.Intro;
   }
