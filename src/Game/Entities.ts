@@ -62,18 +62,19 @@ export class Entities {
           const group = gltf.scene;
           const model = group.children[0];
 
-          model.position.copy(new THREE.Vector3(-28, 38, -3));
+          model.position.copy(new THREE.Vector3(-32.5, 16, 4));
 
           resolve(model);
         });
       }),
-      // Act 1
+      //
       new Promise((resolve) => {
         gltfLoader.load("/models/act-1/act-1-title.glb", (gltf) => {
           const group = gltf.scene;
-          const model = group;
+          const model = group.children[0];
 
-          model.position.copy(new THREE.Vector3(0, 75.25, 46));
+          model.rotation.y = Math.PI / 2;
+          model.position.copy(new THREE.Vector3(-5, 3.5, 70));
 
           resolve(model);
         });
@@ -83,7 +84,8 @@ export class Entities {
           const group = gltf.scene;
           const model = group.children[0];
 
-          model.position.copy(new THREE.Vector3(0, 72.75, 46));
+          model.rotation.y = Math.PI / 2;
+          model.position.copy(new THREE.Vector3(-5, 1, 70));
 
           resolve(model);
         });
@@ -96,34 +98,6 @@ export class Entities {
         });
       }),
       new Promise((resolve) => {
-        gltfLoader.load("/models/act-1/act-1-bus-1.glb", (gltf) => {
-          const group = gltf.scene;
-          const model = group.children[0];
-
-          const mixer = new THREE.AnimationMixer(model);
-          this.mixers.push(mixer);
-
-          const action = mixer.clipAction(gltf.animations[1]);
-          action.play();
-
-          resolve(model);
-        });
-      }),
-      new Promise((resolve) => {
-        gltfLoader.load("/models/act-1/act-1-bus-2.glb", (gltf) => {
-          const group = gltf.scene;
-          const model = group.children[0];
-
-          const mixer = new THREE.AnimationMixer(model);
-          this.mixers.push(mixer);
-
-          const action = mixer.clipAction(gltf.animations[1]);
-          action.play();
-
-          resolve(model);
-        });
-      }),
-      new Promise((resolve) => {
         gltfLoader.load("/models/act-1/act-1-train-1.glb", (gltf) => {
           const group = gltf.scene;
           const model = group.children[0];
@@ -132,11 +106,40 @@ export class Entities {
           this.mixers.push(mixer);
 
           const action = mixer.clipAction(gltf.animations[1]);
-          action.play();
+
+          this.actions.push(action);
 
           resolve(model);
         });
       }),
+      // new Promise((resolve) => {
+      //   gltfLoader.load("/models/act-1/act-1-bus-1.glb", (gltf) => {
+      //     const group = gltf.scene;
+      //     const model = group.children[0];
+
+      //     const mixer = new THREE.AnimationMixer(model);
+      //     this.mixers.push(mixer);
+
+      //     const action = mixer.clipAction(gltf.animations[1]);
+      //     action.play();
+
+      //     resolve(model);
+      //   });
+      // }),
+      // new Promise((resolve) => {
+      //   gltfLoader.load("/models/act-1/act-1-bus-2.glb", (gltf) => {
+      //     const group = gltf.scene;
+      //     const model = group.children[0];
+
+      //     const mixer = new THREE.AnimationMixer(model);
+      //     this.mixers.push(mixer);
+
+      //     const action = mixer.clipAction(gltf.animations[1]);
+      //     action.play();
+
+      //     resolve(model);
+      //   });
+      // }),
     ]);
 
     loadedModels.forEach((model: any) => {
@@ -166,13 +169,16 @@ export class Entities {
     });
   }
 
-  play(actionIndex: number, duration: number) {
+  play(actionIndex: number, duration?: number) {
     const { actions } = this;
 
     const action = actions[actionIndex];
 
     if (action) {
-      action.setDuration(duration);
+      if (duration) {
+        action.setDuration(duration);
+      }
+
       action.play();
     }
   }

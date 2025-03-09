@@ -15,13 +15,13 @@ export class Director {
   game: Game;
   timeout: number | null;
   currentScene: Scenes | null;
-  status: { operator: boolean; producer: boolean };
+  status: { operator: boolean; producer: boolean; scenographer: boolean };
 
   constructor(game: Game) {
     this.game = game;
     this.timeout = null;
     this.currentScene = null;
-    this.status = { operator: false, producer: false };
+    this.status = { operator: false, producer: false, scenographer: false };
 
     this.initDebugger();
   }
@@ -43,7 +43,7 @@ export class Director {
     folder.add(CONFIG, "rotationMultiplier").min(0).max(2).step(0.01);
   }
 
-  setReady(target: "operator" | "producer") {
+  setReady(target: "operator" | "producer" | "scenographer") {
     this.status[target] = true;
 
     this.checkReady();
@@ -91,16 +91,26 @@ export class Director {
 
   start() {
     const { game, timeout } = this;
-    const { operator } = game;
+    const { operator, entities } = game;
 
     if (timeout === null) {
       this.timeout = 1;
 
-      operator.move(0, 2, false, false, () => {
+      operator.move(0, 3, false, false, () => {
         this.timeout = null;
         this.currentScene = Scenes.TurnAround;
 
-        operator.move(1, 20, false, true);
+        entities.group.children.forEach((child) => {
+          if (["act-1-title", "act-1-button-start"].includes(child.name)) {
+            child.visible = false;
+          }
+        });
+
+        entities.play(0);
+
+        setTimeout(() => {
+          operator.move(1, 30, false, true);
+        }, 4000);
       });
     }
   }

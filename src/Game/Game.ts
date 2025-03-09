@@ -7,6 +7,7 @@ import { Clock } from "./Clock";
 import { Director } from "./Director";
 import { Debug } from "./Debug";
 import { Operator } from "./Operator";
+import { Scenographer } from "./Scenographer";
 
 export class Game {
   screen: {
@@ -19,6 +20,7 @@ export class Game {
   clock: Clock;
   director: Director;
   operator: Operator;
+  scenographer: Scenographer;
   scene: Scene;
   lights: Lights;
   renderer: Renderer;
@@ -33,6 +35,7 @@ export class Game {
     this.scene = new Scene(this);
     this.director = new Director(this);
     this.operator = new Operator(this);
+    this.scenographer = new Scenographer(this);
     this.lights = new Lights(this);
     this.renderer = new Renderer(this);
     this.entities = new Entities(this);

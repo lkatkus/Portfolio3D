@@ -51,7 +51,7 @@ export class Scene {
 
     const backgroundPlane = new THREE.Mesh(geometry, material);
 
-    backgroundPlane.position.y = -5;
+    backgroundPlane.position.y = -20;
     backgroundPlane.position.x = -30;
     backgroundPlane.position.z = -5;
     backgroundPlane.rotation.x = -Math.PI / 2;

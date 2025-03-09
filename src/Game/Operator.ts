@@ -49,9 +49,8 @@ export class Operator {
     this.game = game;
     this.gltfLoader = new GLTFLoader();
 
-    this.helpersGroup = this.initGroup();
-
     this.cameras = this.initCameras();
+    this.helpersGroup = this.initHelpersGroup();
     this.currentCamera = this.initCurrentCamera();
     this.controls = this.initControls();
 
@@ -61,7 +60,7 @@ export class Operator {
     this.initDebugger();
   }
 
-  private initGroup() {
+  private initHelpersGroup() {
     const { game } = this;
     const { scene } = game;
 
