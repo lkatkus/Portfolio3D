@@ -5,9 +5,25 @@ export class Lights {
   game: Game;
 
   constructor(game: Game) {
+    this.game = game;
+
+    this.initAmbientLight();
+    this.initDirectionalLight();
+  }
+
+  initAmbientLight() {
+    const { game } = this;
     const { scene } = game;
 
-    const ambientLight = new THREE.AmbientLight("#ffffff", 1.5);
+    const ambientLight = new THREE.AmbientLight("#ffffff", 2);
+
+    scene.currentScene.add(ambientLight);
+  }
+
+  initDirectionalLight() {
+    const { game } = this;
+    const { scene } = game;
+
     const directionalLight = new THREE.DirectionalLight("#ffffff", 4);
 
     directionalLight.position.set(10, 10, 10);
@@ -23,8 +39,6 @@ export class Lights {
     // directionalLight.shadow.camera.top = 2;
     // directionalLight.shadow.camera.bottom = -2;
 
-    scene.currentScene.add(ambientLight, directionalLight);
-
-    this.game = game;
+    scene.currentScene.add(directionalLight);
   }
 }

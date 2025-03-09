@@ -27,17 +27,17 @@ export class Renderer {
 
   initRenderer(width: number, height: number) {
     const canvas = document.querySelector("#webglCanvas")!;
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      // antialias: true
+    });
 
     renderer.setSize(
       width * CONFIG.sizeMultiplier,
       height * CONFIG.sizeMultiplier,
       false
     );
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     return renderer;
   }
@@ -81,7 +81,7 @@ export class Renderer {
       screen.height * CONFIG.sizeMultiplier,
       false
     );
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   }
 
   render() {
