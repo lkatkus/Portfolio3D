@@ -151,7 +151,7 @@ export class Operator {
     const { game, cameras } = this;
     const { debug } = game;
 
-    const folder = debug.gui.addFolder("Operator");
+    const folder = debug.gui.addFolder("Operator").close();
     const availableCameras = cameras.map((_, index) => index);
 
     const debugConfig = {

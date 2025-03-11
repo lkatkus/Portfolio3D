@@ -26,7 +26,7 @@ export class Entities {
     const { game, actions } = this;
     const { debug } = game;
 
-    const folder = debug.gui.addFolder("Producer");
+    const folder = debug.gui.addFolder("Producer").close();
     const availableActions = actions.map((_, index) => index);
 
     const debugConfig = {
