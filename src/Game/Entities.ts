@@ -22,25 +22,7 @@ export class Entities {
     this.initModels();
   }
 
-  private initDebugger() {
-    const { game, actions } = this;
-    const { debug } = game;
-
-    const folder = debug.gui.addFolder("Producer").close();
-    const availableActions = actions.map((_, index) => index);
-
-    const debugConfig = {
-      currentAnimation: null,
-    };
-
-    folder
-      .add(debugConfig, "currentAnimation", availableActions)
-      .name("Active animation")
-      .onChange((index: any) => {
-        this.play(index, 2);
-        debugConfig.currentAnimation = null;
-      });
-  }
+  private initDebugger() {}
 
   initGroup() {
     const { game } = this;
@@ -105,9 +87,12 @@ export class Entities {
           const mixer = new THREE.AnimationMixer(model);
           this.mixers.push(mixer);
 
-          const action = mixer.clipAction(gltf.animations[1]);
-
-          this.actions.push(action);
+          this.actions.push(
+            mixer.clipAction(gltf.animations[0]),
+            mixer.clipAction(gltf.animations[1]),
+            mixer.clipAction(gltf.animations[2]),
+            mixer.clipAction(gltf.animations[3])
+          );
 
           resolve(model);
         });
@@ -169,17 +154,73 @@ export class Entities {
     });
   }
 
-  play(actionIndex: number, duration?: number) {
+  play(actionIndex: number, shouldLoop = true, duration?: number) {
     const { actions } = this;
 
-    const action = actions[actionIndex];
+    actions.forEach((action) => action.stop());
 
+    const action = actions[actionIndex];
     if (action) {
       if (duration) {
         action.setDuration(duration);
       }
 
+      if (!shouldLoop) {
+        action.loop = THREE.LoopOnce;
+        action.clampWhenFinished = true;
+      }
+
       action.play();
     }
+  }
+
+  playSequence(
+    steps: [number, { duration?: number; cb?: () => void }?][],
+    shouldLoop = false
+  ) {
+    const { mixers } = this;
+
+    const mixer = mixers[0];
+
+    let currentStepIndex = 0;
+    let currentStepAction = steps[currentStepIndex];
+
+    const playNext = (actionIndex: number) => {
+      const currentStepConfig = currentStepAction[1];
+      const currentStepDuration = currentStepConfig?.duration;
+
+      if (actionIndex !== undefined) {
+        this.play(actionIndex, false, currentStepDuration);
+      }
+    };
+
+    const onFinish = () => {
+      const currentStepConfig = currentStepAction[1];
+      const currentStepCallback = currentStepConfig?.cb;
+
+      if (currentStepCallback) {
+        currentStepCallback();
+      }
+
+      currentStepIndex += 1;
+      currentStepAction = steps[currentStepIndex];
+
+      const isLastStep = currentStepIndex > steps.length - 1;
+
+      if (currentStepAction) {
+        playNext(currentStepAction[0]);
+      } else if (isLastStep && shouldLoop) {
+        currentStepIndex = 0;
+        currentStepAction = steps[currentStepIndex];
+
+        playNext(currentStepAction[0]);
+      } else {
+        mixer.removeEventListener("finished", onFinish);
+      }
+    };
+
+    mixer.addEventListener("finished", onFinish);
+
+    playNext(currentStepAction[0]);
   }
 }

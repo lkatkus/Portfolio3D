@@ -96,7 +96,7 @@ export class Director {
     if (timeout === null) {
       this.timeout = 1;
 
-      operator.move(0, 3, false, false, () => {
+      operator.move(0, 3, false, () => {
         this.timeout = null;
         this.currentScene = Scenes.TurnAround;
 
@@ -105,13 +105,31 @@ export class Director {
             child.visible = false;
           }
         });
-
-        entities.play(0);
-
-        setTimeout(() => {
-          operator.move(1, 30, false, true);
-        }, 4000);
       });
+
+      entities.playSequence([
+        [0, { duration: 4 }],
+        [3, { duration: 2 }],
+        [2, { duration: 2 }],
+        [
+          1,
+          {
+            duration: 2,
+            cb: () => {
+              operator.move(1, 30, true);
+              entities.playSequence(
+                [
+                  [0, { duration: 2 }],
+                  [3, { duration: 2 }],
+                  [2, { duration: 2 }],
+                  [1, { duration: 2 }],
+                ],
+                true
+              );
+            },
+          },
+        ],
+      ]);
     }
   }
 

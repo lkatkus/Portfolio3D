@@ -191,7 +191,6 @@ export class Operator {
   move(
     trackIndex: number,
     duration: number,
-    reverse: boolean = false,
     repeat: boolean = false,
     cb?: () => void
   ) {
@@ -203,10 +202,10 @@ export class Operator {
       const camera = currentCamera.camera;
       const positionCurve = track[0].curve;
       const targetCurve = track[1].curve;
-      const progress = { t: reverse ? 1 : 0 };
+      const progress = { t: 0 };
 
       gsap.to(progress, {
-        t: reverse ? 0 : 1,
+        t: 1,
         repeat: repeat ? -1 : 0,
         ease: "none",
         duration,
