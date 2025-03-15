@@ -73,9 +73,9 @@ export class Director {
   turnaround() {
     const { game } = this;
     const { clock, entities } = game;
-    const { group } = entities;
 
-    const geometry = group.children[0];
+    const jsLogo = entities.getEntityByName("jsLogo");
+    const geometry = jsLogo.group.children[0];
     const rotationDiff = Math.PI * clock.deltaTime;
 
     geometry.rotation.y += rotationDiff * CONFIG.rotationMultiplier;
@@ -100,14 +100,16 @@ export class Director {
         this.timeout = null;
         this.currentScene = Scenes.TurnAround;
 
-        entities.group.children.forEach((child) => {
-          if (["act-1-title", "act-1-button-start"].includes(child.name)) {
-            child.visible = false;
+        entities.entities.forEach((entity) => {
+          if (["gameTitle", "gameStartButton"].includes(entity.name)) {
+            entity.group.visible = false;
           }
         });
       });
 
-      entities.playSequence([
+      const trainEntity = entities.getEntityByName("train");
+
+      trainEntity.playSequence([
         [0, { duration: 4 }],
         [3, { duration: 2 }],
         [2, { duration: 2 }],
@@ -117,7 +119,8 @@ export class Director {
             duration: 2,
             cb: () => {
               operator.move(1, 30, true);
-              entities.playSequence(
+
+              trainEntity.playSequence(
                 [
                   [0, { duration: 2 }],
                   [3, { duration: 2 }],
