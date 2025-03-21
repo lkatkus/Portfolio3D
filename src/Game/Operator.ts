@@ -10,6 +10,7 @@ import {
   INITIAL_CAMERA_INDEX,
   CAMERA_TRACKS_CONFIG,
 } from "./Operator.constants";
+import { Entity } from "./Entity";
 
 const getCamerasConfig = (
   aspectRatio: number
@@ -45,9 +46,18 @@ export class Operator {
 
   tracks: [Track, Track][];
 
+  isTransitioning: boolean;
+
+  target?: Entity;
+  targetOffset: THREE.Vector3;
+  targetOffsetTarget: THREE.Vector3;
+  targetOffsetDirection: "sw" | "nw" | "ne" | "se";
+
   constructor(game: Game) {
     this.game = game;
     this.gltfLoader = new GLTFLoader();
+
+    this.isTransitioning = false;
 
     this.cameras = this.initCameras();
     this.helpersGroup = this.initHelpersGroup();
@@ -55,6 +65,10 @@ export class Operator {
     this.controls = this.initControls();
 
     this.tracks = [];
+
+    this.targetOffsetDirection = "sw";
+    this.targetOffset = new THREE.Vector3(10, 10, 10);
+    this.targetOffsetTarget = new THREE.Vector3(10, 10, 10);
 
     this.initTracks();
     this.initDebugger();
@@ -225,11 +239,61 @@ export class Operator {
     }
   }
 
+  setTarget(entity: Entity) {
+    this.target = entity;
+  }
+
+  updateTargetOffset(direction: -1 | 1) {
+    const rotation = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(0, 1, 0),
+      (Math.PI / 2) * direction
+    );
+
+    this.isTransitioning = true;
+    this.targetOffsetTarget = this.targetOffset
+      .clone()
+      .applyQuaternion(rotation);
+
+    if (direction === 1) {
+      this.targetOffsetDirection = "se";
+    } else {
+      this.targetOffsetDirection = "sw";
+    }
+  }
+
+  smoothUpdate() {
+    if (this.isTransitioning) {
+      this.targetOffset.lerp(this.targetOffsetTarget, 0.05); // Adjust speed multiplier
+
+      if (this.targetOffset.distanceTo(this.targetOffsetTarget) < 0.01) {
+        this.targetOffset.copy(this.targetOffsetTarget);
+        this.isTransitioning = false;
+      }
+    }
+  }
+
+  trackTarget() {
+    const { target, targetOffset, currentCamera } = this;
+    const { camera } = currentCamera;
+
+    if (target) {
+      this.smoothUpdate();
+
+      const entityPosition = target.group.position;
+      const targetWorldPosition = entityPosition.clone().add(targetOffset);
+
+      camera.position.copy(targetWorldPosition);
+      camera.lookAt(entityPosition);
+    }
+  }
+
   update() {
-    const { game, controls } = this;
+    const { game, controls, target } = this;
     const { clock } = game;
 
-    if (controls && controls.enabled) {
+    if (target) {
+      this.trackTarget();
+    } else if (controls && controls.enabled) {
       controls.update(clock.deltaTime);
     }
   }

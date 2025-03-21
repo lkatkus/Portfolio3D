@@ -16,6 +16,14 @@ export class Entity {
     this.gltfLoader = new GLTFLoader();
     this.mixer = new THREE.AnimationMixer(this.group);
     this.actions = [];
+
+    // this.initDebug();
+  }
+
+  initDebug() {
+    const axesHelper = new THREE.AxesHelper(2);
+
+    this.group.add(axesHelper);
   }
 
   load(onBeforeAdd?: (model: THREE.Group) => void): Promise<Entity> {

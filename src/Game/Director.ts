@@ -9,19 +9,63 @@ enum Scenes {
   "Intro" = "Intro",
   "Start" = "Start",
   "TurnAround" = "TurnAround",
+  "Explore" = "Explore",
+}
+
+class Event {
+  constructor() {
+    //
+  }
+
+  check() {
+    //
+  }
+}
+
+class EventManager {
+  game: Game;
+  events: Event[];
+
+  constructor(game: Game) {
+    this.game = game;
+
+    this.events = [];
+  }
+
+  init() {
+    const { game } = this;
+
+    game.director.setReady("eventManager");
+  }
+
+  check() {
+    this.events.forEach((event) => event.check());
+  }
 }
 
 export class Director {
   game: Game;
   timeout: number | null;
   currentScene: Scenes | null;
-  status: { operator: boolean; producer: boolean; scenographer: boolean };
+  status: {
+    player: boolean;
+    operator: boolean;
+    producer: boolean;
+    scenographer: boolean;
+    eventManager: boolean;
+  };
 
   constructor(game: Game) {
     this.game = game;
     this.timeout = null;
     this.currentScene = null;
-    this.status = { operator: false, producer: false, scenographer: false };
+    this.status = {
+      player: false,
+      operator: false,
+      producer: false,
+      scenographer: false,
+      eventManager: false,
+    };
 
     this.initDebugger();
   }
@@ -43,7 +87,9 @@ export class Director {
     folder.add(CONFIG, "rotationMultiplier").min(0).max(2).step(0.01);
   }
 
-  setReady(target: "operator" | "producer" | "scenographer") {
+  setReady(
+    target: "player" | "operator" | "producer" | "scenographer" | "eventManager"
+  ) {
     this.status[target] = true;
 
     this.checkReady();
@@ -91,15 +137,12 @@ export class Director {
 
   start() {
     const { game, timeout } = this;
-    const { operator, entities } = game;
+    const { player, operator, entities } = game;
 
     if (timeout === null) {
       this.timeout = 1;
 
-      operator.move(0, 3, false, () => {
-        this.timeout = null;
-        this.currentScene = Scenes.TurnAround;
-
+      operator.move(0, 1, false, () => {
         entities.entities.forEach((entity) => {
           if (["gameTitle", "gameStartButton"].includes(entity.name)) {
             entity.group.visible = false;
@@ -118,7 +161,11 @@ export class Director {
           {
             duration: 2,
             cb: () => {
-              operator.move(1, 30, true);
+              this.timeout = null;
+              this.currentScene = Scenes.Explore;
+
+              player.enableControls();
+              operator.setTarget(player);
 
               trainEntity.playSequence(
                 [
@@ -136,6 +183,10 @@ export class Director {
     }
   }
 
+  explore() {
+    //
+  }
+
   update() {
     switch (this.currentScene) {
       case Scenes.Intro:
@@ -144,6 +195,8 @@ export class Director {
         return this.start();
       case Scenes.TurnAround:
         return this.turnaround();
+      case Scenes.Explore:
+        return this.explore();
 
       default:
         break;

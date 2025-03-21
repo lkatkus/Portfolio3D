@@ -8,6 +8,8 @@ import { Director } from "./Director";
 import { Debug } from "./Debug";
 import { Operator } from "./Operator";
 import { Scenographer } from "./Scenographer";
+import { Player } from "./Player";
+import { EventManager } from "./EventManager";
 
 export class Game {
   screen: {
@@ -20,10 +22,12 @@ export class Game {
   clock: Clock;
   director: Director;
   operator: Operator;
+  eventManager: EventManager;
   scenographer: Scenographer;
   scene: Scene;
   lights: Lights;
   renderer: Renderer;
+  player: Player;
   entities: Entities;
   rayCaster: RayCaster;
 
@@ -35,10 +39,12 @@ export class Game {
     this.scene = new Scene(this);
     this.director = new Director(this);
     this.operator = new Operator(this);
+    this.eventManager = new EventManager(this);
     this.scenographer = new Scenographer(this);
     this.lights = new Lights(this);
     this.renderer = new Renderer(this);
     this.entities = new Entities(this);
+    this.player = new Player(this);
     this.rayCaster = new RayCaster(this);
 
     this.initListeners();
@@ -70,13 +76,23 @@ export class Game {
   }
 
   update() {
-    const { clock, director, entities: producer, operator, rayCaster } = this;
+    const {
+      clock,
+      director,
+      player,
+      entities: producer,
+      eventManager,
+      operator,
+      rayCaster,
+    } = this;
 
     clock.update();
     director.update();
+    player.update();
     producer.update();
     rayCaster.update();
     operator.update();
+    eventManager.update();
   }
 
   isPortrait() {
