@@ -1,44 +1,7 @@
 import * as THREE from "three";
 import type { Game } from "./Game";
-import { DIRECTIONS, Event, EventConfig } from "./Event";
-
-const EVENTS_CONFIG: EventConfig[] = [
-  {
-    id: "camera-switch-1",
-    origin: new THREE.Vector3(-10, 0, -18),
-    onStart: (game: Game, direction: DIRECTIONS) => {
-      const { operator } = game;
-
-      if (
-        (direction === DIRECTIONS.South || direction === DIRECTIONS.East) &&
-        operator.targetOffsetDirection === "sw"
-      ) {
-        operator.updateTargetOffset(1);
-      } else if (
-        (direction === DIRECTIONS.West || direction === DIRECTIONS.North) &&
-        operator.targetOffsetDirection === "se"
-      ) {
-        operator.updateTargetOffset(-1);
-      }
-    },
-    onUpdate: (_game: Game) => {},
-    onFinish: (game: Game, direction: DIRECTIONS) => {
-      const { operator } = game;
-
-      if (
-        (direction === DIRECTIONS.South || direction === DIRECTIONS.East) &&
-        operator.targetOffsetDirection === "se"
-      ) {
-        operator.updateTargetOffset(-1);
-      } else if (
-        (direction === DIRECTIONS.West || direction === DIRECTIONS.North) &&
-        operator.targetOffsetDirection === "sw"
-      ) {
-        operator.updateTargetOffset(1);
-      }
-    },
-  },
-];
+import { Event, EventConfig } from "./Event";
+import { EVENTS_CONFIG } from "./EventManager.constants";
 
 export class EventManager {
   game: Game;
@@ -48,6 +11,8 @@ export class EventManager {
     this.game = game;
 
     this.events = this.initEvents();
+
+    this.initDebug();
   }
 
   initEvents() {
@@ -60,6 +25,26 @@ export class EventManager {
     game.director.setReady("eventManager");
 
     return events;
+  }
+
+  initDebug() {
+    const { game, events } = this;
+
+    const group = new THREE.Group();
+
+    events.forEach((event) => {
+      const geometry = new THREE.SphereGeometry(event.triggerRadius);
+      const material = new THREE.MeshBasicMaterial({
+        color: "red",
+        wireframe: true,
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+
+      mesh.position.copy(event.origin);
+      group.add(mesh);
+    });
+
+    game.scene.currentScene.add(group);
   }
 
   update() {

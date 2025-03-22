@@ -66,7 +66,7 @@ export class Operator {
 
     this.tracks = [];
 
-    this.targetOffsetDirection = "sw";
+    this.targetOffsetDirection = "se";
     this.targetOffset = new THREE.Vector3(10, 10, 10);
     this.targetOffsetTarget = new THREE.Vector3(10, 10, 10);
 
@@ -254,10 +254,18 @@ export class Operator {
       .clone()
       .applyQuaternion(rotation);
 
-    if (direction === 1) {
+    // Normalize the target offset vector
+    const normalizedOffset = this.targetOffsetTarget.clone().normalize();
+
+    // Determine the direction based on normalized vector
+    if (normalizedOffset.x > 0 && normalizedOffset.z > 0) {
       this.targetOffsetDirection = "se";
-    } else {
+    } else if (normalizedOffset.x < 0 && normalizedOffset.z > 0) {
       this.targetOffsetDirection = "sw";
+    } else if (normalizedOffset.x > 0 && normalizedOffset.z < 0) {
+      this.targetOffsetDirection = "ne";
+    } else {
+      this.targetOffsetDirection = "nw";
     }
   }
 

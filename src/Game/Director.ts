@@ -12,37 +12,6 @@ enum Scenes {
   "Explore" = "Explore",
 }
 
-class Event {
-  constructor() {
-    //
-  }
-
-  check() {
-    //
-  }
-}
-
-class EventManager {
-  game: Game;
-  events: Event[];
-
-  constructor(game: Game) {
-    this.game = game;
-
-    this.events = [];
-  }
-
-  init() {
-    const { game } = this;
-
-    game.director.setReady("eventManager");
-  }
-
-  check() {
-    this.events.forEach((event) => event.check());
-  }
-}
-
 export class Director {
   game: Game;
   timeout: number | null;
@@ -116,25 +85,6 @@ export class Director {
     //
   }
 
-  turnaround() {
-    const { game } = this;
-    const { clock, entities } = game;
-
-    const jsLogo = entities.getEntityByName("jsLogo");
-    const geometry = jsLogo.group.children[0];
-    const rotationDiff = Math.PI * clock.deltaTime;
-
-    geometry.rotation.y += rotationDiff * CONFIG.rotationMultiplier;
-    geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
-
-    const time = clock.elapsedTime;
-    const wobbleAmount = 0.1;
-    const wobbleSpeed = 3;
-
-    geometry.rotation.x = wobbleAmount * Math.sin(time * wobbleSpeed);
-    geometry.rotation.z = wobbleAmount * Math.cos(time * wobbleSpeed);
-  }
-
   start() {
     const { game, timeout } = this;
     const { player, operator, entities } = game;
@@ -184,7 +134,23 @@ export class Director {
   }
 
   explore() {
-    //
+    // @TODO create an animation
+    const { game } = this;
+    const { clock, entities } = game;
+
+    const jsLogo = entities.getEntityByName("jsLogo");
+    const geometry = jsLogo.group.children[0];
+    const rotationDiff = Math.PI * clock.deltaTime;
+
+    geometry.rotation.y += rotationDiff * CONFIG.rotationMultiplier;
+    geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
+
+    const time = clock.elapsedTime;
+    const wobbleAmount = 0.1;
+    const wobbleSpeed = 3;
+
+    geometry.rotation.x = wobbleAmount * Math.sin(time * wobbleSpeed);
+    geometry.rotation.z = wobbleAmount * Math.cos(time * wobbleSpeed);
   }
 
   update() {
@@ -193,8 +159,6 @@ export class Director {
         return this.intro();
       case Scenes.Start:
         return this.start();
-      case Scenes.TurnAround:
-        return this.turnaround();
       case Scenes.Explore:
         return this.explore();
 

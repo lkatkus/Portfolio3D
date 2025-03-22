@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import type { Game } from "./Game";
 
-const TRIGGER_OFFSET = 7;
-
 export enum DIRECTIONS {
   South = "South",
   West = "West",
@@ -13,6 +11,7 @@ export enum DIRECTIONS {
 export type EventConfig = {
   id: string;
   origin: THREE.Vector3;
+  triggerRadius: number;
   onStart: (game: Game, direction: DIRECTIONS) => void;
   onUpdate: (game: Game) => void;
   onFinish: (game: Game, direction: DIRECTIONS) => void;
@@ -21,12 +20,21 @@ export type EventConfig = {
 export class Event {
   id: string;
   origin: THREE.Vector3;
+  triggerRadius: number;
 
   isActive: boolean;
 
-  constructor({ id, origin, onStart, onFinish, onUpdate }: EventConfig) {
+  constructor({
+    id,
+    origin,
+    triggerRadius,
+    onStart,
+    onFinish,
+    onUpdate,
+  }: EventConfig) {
     this.id = id;
     this.origin = origin;
+    this.triggerRadius = triggerRadius;
 
     this.isActive = false;
 
@@ -68,18 +76,18 @@ export class Event {
   }
 
   check(game: Game) {
-    const { origin } = this;
+    const { origin, triggerRadius } = this;
 
     const playerPosition = game.player.group.position;
     const distToEvent = playerPosition.distanceTo(origin);
 
-    if (!this.isActive && distToEvent < TRIGGER_OFFSET) {
+    if (!this.isActive && distToEvent < triggerRadius) {
       this.isActive = true;
 
       const entryDirection = this.getEntryDirection(playerPosition);
 
       this.onStart(game, entryDirection);
-    } else if (this.isActive && distToEvent > TRIGGER_OFFSET) {
+    } else if (this.isActive && distToEvent > triggerRadius) {
       this.isActive = false;
 
       const exitDirection = this.getEntryDirection(playerPosition);

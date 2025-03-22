@@ -20,7 +20,7 @@ export class Player extends Entity {
     this.movementDirection = new THREE.Vector3();
 
     this.rotationSpeed = 0.05;
-    this.moveSpeed = 5;
+    this.moveSpeed = 10;
 
     this.keysPressed = new Set();
 
@@ -90,6 +90,19 @@ export class Player extends Entity {
       if (this.keysPressed.has("d")) {
         this.group.rotateY(-this.rotationSpeed);
       }
+    }
+
+    // Handle elevation
+    if (this.keysPressed.has("ArrowUp") || this.keysPressed.has("ArrowDown")) {
+      const moveVector = new THREE.Vector3(0, 1, 0);
+
+      if (this.keysPressed.has("ArrowDown")) {
+        moveVector.negate();
+      }
+
+      moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
+
+      this.group.position.add(moveVector);
     }
 
     // Handle movement
