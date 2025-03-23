@@ -16,7 +16,7 @@ export class Player extends Entity {
   collisionCaster: CollisionCaster;
 
   constructor(game: Game) {
-    super("player", "/models/act-1/act-1-button-start.glb");
+    super("player", "/models/act-0-cube.glb");
 
     this.game = game;
     this.isControlled = false;
@@ -41,6 +41,7 @@ export class Player extends Entity {
 
     await load((model) => {
       model.position.y += 1;
+      model.scale.setScalar(0.5);
     });
 
     scene.currentScene.add(this.group);
@@ -98,6 +99,13 @@ export class Player extends Entity {
     collisionCaster.update();
 
     const collisions = collisionCaster.checkCollisions();
+    const groundOffsetVector = collisionCaster.checkGround();
+
+    if (groundOffsetVector) {
+      this.group.position.add(groundOffsetVector);
+    } else {
+      this.group.position.add(new THREE.Vector3(0, -0.1, 0));
+    }
 
     // Handle rotation
     if (this.keysPressed.has("a") || this.keysPressed.has("d")) {
@@ -117,21 +125,20 @@ export class Player extends Entity {
       const moveVector = new THREE.Vector3(0, 1, 0);
 
       if (this.keysPressed.has("ArrowUp") && !collisions.up) {
-        moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
+        moveVector.normalize().multiplyScalar(this.moveSpeed * 2 * deltaTime);
 
         this.group.position.add(moveVector);
       }
 
       if (this.keysPressed.has("ArrowDown") && !collisions.down) {
         moveVector.negate();
-        moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
+        moveVector.normalize().multiplyScalar(this.moveSpeed * 2 * deltaTime);
 
         this.group.position.add(moveVector);
       }
     }
 
     // Handle horizontal movement
-
     if (this.keysPressed.has("w") || this.keysPressed.has("s")) {
       const moveVector = new THREE.Vector3();
 

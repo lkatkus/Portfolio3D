@@ -41,6 +41,15 @@ export class Scenographer {
 
     const loadedModels = await Promise.all([
       new Promise((resolve) => {
+        gltfLoader.load("/models/act-1/act-1-world-stairs.glb", (gltf) => {
+          const modelData = gltf.scene;
+
+          modelData.visible = false;
+
+          resolve(modelData);
+        });
+      }),
+      new Promise((resolve) => {
         gltfLoader.load("/models/act-0-cube.glb", (gltf) => {
           const group = gltf.scene;
           const model = group.children[0] as any;

@@ -39,8 +39,8 @@ export class CollisionCaster {
     this.player = player;
     this.origin = origin;
 
-    this.front = this.initRayCaster(forwardDirection);
-    this.back = this.initRayCaster(frontTo.back(forwardDirection));
+    this.front = this.initRayCaster(forwardDirection, 0.75);
+    this.back = this.initRayCaster(frontTo.back(forwardDirection), 0.75);
     this.left = this.initRayCaster(frontTo.left(forwardDirection));
     this.right = this.initRayCaster(frontTo.right(forwardDirection));
     this.up = this.initRayCaster(frontTo.up(forwardDirection));
@@ -49,12 +49,12 @@ export class CollisionCaster {
     this.initDebug();
   }
 
-  initRayCaster(direction: THREE.Vector3) {
+  initRayCaster(direction: THREE.Vector3, farMultiplier = 1) {
     const rayCaster = new THREE.Raycaster(
       this.origin.clone(),
       direction.clone().normalize(),
       0,
-      1
+      1 * farMultiplier
     );
 
     return rayCaster;
@@ -115,5 +115,23 @@ export class CollisionCaster {
       up: this.up.intersectObjects(sceneObjects, true).length > 0,
       down: this.down.intersectObjects(sceneObjects, true).length > 0,
     };
+  }
+
+  checkGround() {
+    const sceneObjects = this.player.game.scenographer.group.children;
+
+    const intersections = this.down.intersectObjects(sceneObjects, true);
+
+    if (intersections.length > 0) {
+      const diff = this.player.group.position.y - intersections[0].point.y;
+
+      if (Math.abs(diff) < 0.01) {
+        return new THREE.Vector3(0, 0, 0);
+      }
+
+      return new THREE.Vector3(0, -diff, 0);
+    }
+
+    return null;
   }
 }
