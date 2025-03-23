@@ -5,14 +5,29 @@ import { EVENTS_CONFIG } from "./EventManager.constants";
 
 export class EventManager {
   game: Game;
+  helpersGroup: THREE.Group;
   events: Event[];
 
   constructor(game: Game) {
     this.game = game;
 
     this.events = this.initEvents();
+    this.helpersGroup = this.initHelpersGroup();
 
-    this.initDebug();
+    this.initHelpers();
+    this.initDebugger();
+  }
+
+  private initHelpersGroup() {
+    const { game } = this;
+    const { scene } = game;
+
+    const group = new THREE.Group();
+    group.visible = false;
+
+    scene.currentScene.add(group);
+
+    return group;
   }
 
   initEvents() {
@@ -27,10 +42,29 @@ export class EventManager {
     return events;
   }
 
-  initDebug() {
-    const { game, events } = this;
+  toggleHelpers() {
+    if (!this.helpersGroup.visible) {
+      this.helpersGroup.visible = true;
+    } else {
+      this.helpersGroup.visible = false;
+    }
+  }
 
-    const group = new THREE.Group();
+  private initDebugger() {
+    const { game } = this;
+    const { debug } = game;
+
+    const folder = debug.gui.addFolder("EventManager").close();
+
+    const debugConfig = {
+      toggleTrackHelpers: this.toggleHelpers.bind(this),
+    };
+
+    folder.add(debugConfig, "toggleTrackHelpers");
+  }
+
+  initHelpers() {
+    const { game, helpersGroup, events } = this;
 
     events.forEach((event) => {
       const geometry = new THREE.SphereGeometry(event.triggerRadius);
@@ -41,10 +75,10 @@ export class EventManager {
       const mesh = new THREE.Mesh(geometry, material);
 
       mesh.position.copy(event.origin);
-      group.add(mesh);
+      helpersGroup.add(mesh);
     });
 
-    game.scene.currentScene.add(group);
+    game.scene.currentScene.add(helpersGroup);
   }
 
   update() {
