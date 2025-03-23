@@ -9,16 +9,21 @@ export const ENTITIES_CONFIG: [
     "gameTitle",
     "/models/act-1/act-1-title.glb",
     (model) => {
-      model.rotation.y = Math.PI / 2;
-      model.position.copy(new THREE.Vector3(-5, 3.5, 70));
+      model.position.copy(new THREE.Vector3(-5, 3.6, 70));
     },
   ],
   [
     "gameStartButton",
     "/models/act-1/act-1-button-start.glb",
     (model) => {
-      model.rotation.y = Math.PI / 2;
-      model.position.copy(new THREE.Vector3(-5, 1, 70));
+      model.position.copy(new THREE.Vector3(-5, 1.25, 70));
+    },
+  ],
+  [
+    "gameStartButton",
+    "/models/act-1/act-1-button-demo.glb",
+    (model) => {
+      model.position.copy(new THREE.Vector3(-5, 0.75, 70));
     },
   ],
   ["train", "/models/act-1/act-1-train-1.glb"],

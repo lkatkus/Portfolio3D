@@ -7,8 +7,8 @@ const CONFIG = {
 
 enum Scenes {
   "Intro" = "Intro",
+  "Demo" = "Demo",
   "Start" = "Start",
-  "TurnAround" = "TurnAround",
   "Explore" = "Explore",
 }
 
@@ -81,8 +81,48 @@ export class Director {
     geometry.position.copy(OBJECT_BASE_POSITION);
   }
 
+  clearMenu() {
+    const { game } = this;
+    const { entities } = game;
+
+    entities.entities.forEach((entity) => {
+      if (["gameTitle", "gameStartButton"].includes(entity.name)) {
+        entity.group.visible = false;
+      }
+    });
+  }
+
   intro() {
     //
+  }
+
+  demo() {
+    const { game, timeout } = this;
+    const { operator, entities } = game;
+
+    if (timeout === null) {
+      this.timeout = 1;
+
+      operator.move(0, 3, false, () => {
+        this.clearMenu();
+        this.timeout = null;
+        this.currentScene = Scenes.Explore;
+
+        operator.move(1, 30, true);
+      });
+
+      const trainEntity = entities.getEntityByName("train");
+
+      trainEntity.playSequence(
+        [
+          [0, { duration: 2 }],
+          [3, { duration: 2 }],
+          [2, { duration: 2 }],
+          [1, { duration: 2 }],
+        ],
+        true
+      );
+    }
   }
 
   start() {
@@ -92,12 +132,8 @@ export class Director {
     if (timeout === null) {
       this.timeout = 1;
 
-      operator.move(0, 1, false, () => {
-        entities.entities.forEach((entity) => {
-          if (["gameTitle", "gameStartButton"].includes(entity.name)) {
-            entity.group.visible = false;
-          }
-        });
+      operator.move(0, 3, false, () => {
+        this.clearMenu();
       });
 
       const trainEntity = entities.getEntityByName("train");
@@ -157,6 +193,8 @@ export class Director {
     switch (this.currentScene) {
       case Scenes.Intro:
         return this.intro();
+      case Scenes.Demo:
+        return this.demo();
       case Scenes.Start:
         return this.start();
       case Scenes.Explore:
@@ -182,9 +220,14 @@ export class Director {
 
       const isTargetButtonStart =
         intersect.object.parent!.name === "act-1-button-start";
+      const isTargetButtonDemo =
+        intersect.object.parent!.name === "act-1-button-demo";
 
       if (isTargetButtonStart) {
         this.currentScene = Scenes.Start;
+      }
+      if (isTargetButtonDemo) {
+        this.currentScene = Scenes.Demo;
       }
     }
   }

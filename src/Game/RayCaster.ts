@@ -2,7 +2,7 @@ import * as THREE from "three";
 import gsap from "gsap";
 import type { Game } from "./Game";
 
-const INTERACTIVE_ITEMS = ["act-1-button-start"];
+const INTERACTIVE_ITEMS = ["act-1-button-start", "act-1-button-demo"];
 
 export class RayCaster {
   game: Game;
