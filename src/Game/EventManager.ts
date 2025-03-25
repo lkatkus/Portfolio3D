@@ -51,7 +51,7 @@ export class EventManager {
   }
 
   private initDebugger() {
-    const { game } = this;
+    const { game, helpersGroup } = this;
     const { debug } = game;
 
     const folder = debug.gui.addFolder("EventManager").close();
@@ -61,6 +61,10 @@ export class EventManager {
     };
 
     folder.add(debugConfig, "toggleTrackHelpers");
+
+    if (game.debug.isEnabled) {
+      helpersGroup.visible = true;
+    }
   }
 
   initHelpers() {
@@ -69,7 +73,7 @@ export class EventManager {
     events.forEach((event) => {
       const geometry = new THREE.SphereGeometry(event.triggerRadius);
       const material = new THREE.MeshBasicMaterial({
-        color: "red",
+        color: event?.debugColor || "red",
         wireframe: true,
       });
       const mesh = new THREE.Mesh(geometry, material);

@@ -15,12 +15,14 @@ export type EventConfig = {
   onStart: (game: Game, direction: DIRECTIONS) => void;
   onUpdate: (game: Game) => void;
   onFinish: (game: Game, direction: DIRECTIONS) => void;
+  debugColor?: string;
 };
 
 export class Event {
   id: string;
   origin: THREE.Vector3;
   triggerRadius: number;
+  debugColor?: string;
 
   isActive: boolean;
 
@@ -31,10 +33,12 @@ export class Event {
     onStart,
     onFinish,
     onUpdate,
+    debugColor,
   }: EventConfig) {
     this.id = id;
     this.origin = origin;
     this.triggerRadius = triggerRadius;
+    this.debugColor = debugColor;
 
     this.isActive = false;
 

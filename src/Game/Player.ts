@@ -31,6 +31,7 @@ export class Player extends Entity {
 
     this.init();
     this.initControls();
+    this.initDebugger();
 
     this.collisionCaster = this.initCollisionCaster();
   }
@@ -47,6 +48,18 @@ export class Player extends Entity {
     scene.currentScene.add(this.group);
 
     game.director.setReady("player");
+  }
+
+  initDebugger() {
+    const debugContainer = document.getElementById("playerDebugPosition")!;
+
+    debugContainer.innerHTML = JSON.stringify(this.group.position, null, 2);
+  }
+
+  updateDebugger() {
+    const debugContainer = document.getElementById("playerDebugPosition")!;
+
+    debugContainer.innerHTML = JSON.stringify(this.group.position, null, 2);
   }
 
   handleKeyDown(e: KeyboardEvent) {
@@ -156,5 +169,8 @@ export class Player extends Entity {
         this.group.position.add(moveVector);
       }
     }
+
+    //
+    this.updateDebugger();
   }
 }

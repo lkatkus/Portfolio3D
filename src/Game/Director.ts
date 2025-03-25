@@ -169,6 +169,14 @@ export class Director {
     }
   }
 
+  startDebug() {
+    const { game } = this;
+    const { player, operator } = game;
+
+    player.enableControls();
+    operator.setTarget(player);
+  }
+
   explore() {
     // @TODO create an animation
     const { game } = this;
@@ -224,7 +232,11 @@ export class Director {
         intersect.object.parent!.name === "act-1-button-demo";
 
       if (isTargetButtonStart) {
-        this.currentScene = Scenes.Start;
+        if (game.debug.isEnabled) {
+          this.startDebug();
+        } else {
+          this.currentScene = Scenes.Start;
+        }
       }
       if (isTargetButtonDemo) {
         this.currentScene = Scenes.Demo;

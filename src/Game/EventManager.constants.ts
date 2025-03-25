@@ -4,7 +4,7 @@ import { DIRECTIONS, EventConfig } from "./Event";
 
 const TRIGGER_OFFSET = 7;
 
-export const EVENTS_CONFIG: EventConfig[] = [
+const CAMERA_EVENT: EventConfig[] = [
   {
     id: "camera-switch-1",
     origin: new THREE.Vector3(-10, 0, -18),
@@ -150,3 +150,95 @@ export const EVENTS_CONFIG: EventConfig[] = [
     onUpdate: (_game: Game) => {},
   },
 ];
+
+const WORLD_EVENTS: EventConfig[] = [
+  {
+    id: "world-event-1-intro",
+    origin: new THREE.Vector3(-9, 0, 0),
+    triggerRadius: 5,
+    debugColor: "blue",
+    onStart: (_game: Game) => {
+      console.log("Whoo... What is this place?");
+    },
+    onFinish: (_game: Game) => {},
+    onUpdate: (_game: Game) => {},
+  },
+  {
+    id: "world-event-2-arch",
+    origin: new THREE.Vector3(-20, 0, -18),
+    triggerRadius: 5,
+    debugColor: "blue",
+    onStart: (_game: Game) => {
+      console.log(
+        "I think that someone has told me that architects make great developers."
+      );
+    },
+    onFinish: (_game: Game) => {},
+    onUpdate: (_game: Game) => {},
+  },
+  {
+    id: "world-event-3-portfolio",
+    origin: new THREE.Vector3(-54, 3, -18),
+    triggerRadius: 5,
+    debugColor: "blue",
+    onStart: (_game: Game) => {
+      console.log(
+        "Hmmm... Not too bad! I think that I should come back later."
+      );
+    },
+    onFinish: (_game: Game) => {},
+    onUpdate: (_game: Game) => {},
+  },
+  {
+    id: "world-event-4-github",
+    origin: new THREE.Vector3(-52, 3, 22),
+    triggerRadius: 5,
+    debugColor: "blue",
+    onStart: (_game: Game) => {
+      console.log(
+        `"In case of fire - git add -A, git commit -m "FIRE!", git push origin HEAD --force"`
+      );
+    },
+    onFinish: (_game: Game) => {},
+    onUpdate: (_game: Game) => {},
+  },
+  {
+    id: "world-event-5-other",
+    origin: new THREE.Vector3(-30, 6, 20),
+    triggerRadius: 5,
+    debugColor: "blue",
+    onStart: (_game: Game) => {
+      console.log(
+        "Autocad, Archicad, 3DS MAX, Photoshop, Illustrator, Nikon, Aperture, Bokeh and etc. Lots of fancy words, huh?"
+      );
+    },
+    onFinish: (_game: Game) => {},
+    onUpdate: (_game: Game) => {},
+  },
+  {
+    id: "world-event-6-js",
+    origin: new THREE.Vector3(-32, 15, 4),
+    triggerRadius: 5,
+    debugColor: "blue",
+    onStart: (_game: Game) => {
+      console.log(
+        "That thing looks interesting...? It seems to be REACTing to something."
+      );
+    },
+    onFinish: (_game: Game) => {},
+    onUpdate: (_game: Game) => {},
+  },
+  {
+    id: "world-event-7-plumber",
+    origin: new THREE.Vector3(-33, -3, 29),
+    triggerRadius: 5,
+    debugColor: "blue",
+    onStart: (_game: Game) => {
+      console.log("I think, that you need a plumber for that...");
+    },
+    onFinish: (_game: Game) => {},
+    onUpdate: (_game: Game) => {},
+  },
+];
+
+export const EVENTS_CONFIG: EventConfig[] = [...CAMERA_EVENT, ...WORLD_EVENTS];
