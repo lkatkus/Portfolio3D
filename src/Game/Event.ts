@@ -8,15 +8,20 @@ export enum DIRECTIONS {
   North = "North",
 }
 
+type AtLeastOne<T, K extends keyof T = keyof T> = {
+  [P in K]: Required<Pick<T, P>> & Partial<Omit<T, P>>;
+}[K];
+
 export type EventConfig = {
   id: string;
   origin: THREE.Vector3;
   triggerRadius: number;
-  onStart: (game: Game, direction: DIRECTIONS) => void;
-  onUpdate: (game: Game) => void;
-  onFinish: (game: Game, direction: DIRECTIONS) => void;
   debugColor?: string;
-};
+} & AtLeastOne<{
+  onStart?: (game: Game, direction: DIRECTIONS) => void;
+  onUpdate?: (game: Game) => void;
+  onFinish?: (game: Game, direction: DIRECTIONS) => void;
+}>;
 
 export class Event {
   id: string;
@@ -42,9 +47,17 @@ export class Event {
 
     this.isActive = false;
 
-    this.onStart = onStart;
-    this.onUpdate = onUpdate;
-    this.onFinish = onFinish;
+    if (onStart) {
+      this.onStart = onStart;
+    }
+
+    if (onUpdate) {
+      this.onUpdate = onUpdate;
+    }
+
+    if (onFinish) {
+      this.onFinish = onFinish;
+    }
   }
 
   onStart(_game: Game, _direction: DIRECTIONS) {
@@ -59,13 +72,11 @@ export class Event {
     //
   }
 
-  activate() {}
-
   getDirectionLabel(direction: THREE.Vector3) {
     if (Math.abs(direction.x) > Math.abs(direction.z)) {
-      return direction.x > 0 ? DIRECTIONS.East : DIRECTIONS.West; // More movement in X → East/West
+      return direction.x > 0 ? DIRECTIONS.East : DIRECTIONS.West;
     } else {
-      return direction.z > 0 ? DIRECTIONS.South : DIRECTIONS.North; // More movement in Z → North/South
+      return direction.z > 0 ? DIRECTIONS.South : DIRECTIONS.North;
     }
   }
 

@@ -39,7 +39,6 @@ const CAMERA_EVENT: EventConfig[] = [
         operator.updateTargetOffset(1);
       }
     },
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "camera-switch-2",
@@ -75,7 +74,6 @@ const CAMERA_EVENT: EventConfig[] = [
         operator.updateTargetOffset(1);
       }
     },
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "camera-switch-3",
@@ -111,7 +109,6 @@ const CAMERA_EVENT: EventConfig[] = [
         operator.updateTargetOffset(1);
       }
     },
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "camera-switch-4",
@@ -147,7 +144,6 @@ const CAMERA_EVENT: EventConfig[] = [
         operator.updateTargetOffset(1);
       }
     },
-    onUpdate: (_game: Game) => {},
   },
 ];
 
@@ -160,8 +156,6 @@ const WORLD_EVENTS: EventConfig[] = [
     onStart: (_game: Game) => {
       console.log("Whoo... What is this place?");
     },
-    onFinish: (_game: Game) => {},
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "world-event-2-arch",
@@ -173,8 +167,6 @@ const WORLD_EVENTS: EventConfig[] = [
         "I think that someone has told me that architects make great developers."
       );
     },
-    onFinish: (_game: Game) => {},
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "world-event-3-portfolio",
@@ -186,8 +178,6 @@ const WORLD_EVENTS: EventConfig[] = [
         "Hmmm... Not too bad! I think that I should come back later."
       );
     },
-    onFinish: (_game: Game) => {},
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "world-event-4-github",
@@ -199,8 +189,6 @@ const WORLD_EVENTS: EventConfig[] = [
         `"In case of fire - git add -A, git commit -m "FIRE!", git push origin HEAD --force"`
       );
     },
-    onFinish: (_game: Game) => {},
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "world-event-5-other",
@@ -212,8 +200,6 @@ const WORLD_EVENTS: EventConfig[] = [
         "Autocad, Archicad, 3DS MAX, Photoshop, Illustrator, Nikon, Aperture, Bokeh and etc. Lots of fancy words, huh?"
       );
     },
-    onFinish: (_game: Game) => {},
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "world-event-6-js",
@@ -225,8 +211,6 @@ const WORLD_EVENTS: EventConfig[] = [
         "That thing looks interesting...? It seems to be REACTing to something."
       );
     },
-    onFinish: (_game: Game) => {},
-    onUpdate: (_game: Game) => {},
   },
   {
     id: "world-event-7-plumber",
@@ -236,8 +220,6 @@ const WORLD_EVENTS: EventConfig[] = [
     onStart: (_game: Game) => {
       console.log("I think, that you need a plumber for that...");
     },
-    onFinish: (_game: Game) => {},
-    onUpdate: (_game: Game) => {},
   },
 ];
 
