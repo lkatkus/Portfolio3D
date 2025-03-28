@@ -1,7 +1,13 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import type { Game } from "./Game";
+
+const INITIAL_FORWARD = new THREE.Vector3(-1, 0, 0);
+
+// type Target = { x: number; z: number };
 
 export class Entity {
+  game: Game;
   name: string;
   src: string;
   group: THREE.Group;
@@ -10,7 +16,14 @@ export class Entity {
   actions: THREE.AnimationAction[];
   currentActionIndex: number | null;
 
-  constructor(name: string, src: string) {
+  orientation: THREE.Vector3;
+
+  targets?: THREE.Vector3[];
+  nextTarget: number | null;
+  nextTargetDirection?: number;
+
+  constructor(game: Game, name: string, src: string) {
+    this.game = game;
     this.name = name;
     this.src = src;
     this.group = new THREE.Group();
@@ -19,16 +32,12 @@ export class Entity {
     this.actions = [];
     this.currentActionIndex = null;
 
-    // this.initDebug();
+    this.orientation = INITIAL_FORWARD.clone();
+
+    this.nextTarget = null;
   }
 
-  initDebug() {
-    const axesHelper = new THREE.AxesHelper(2);
-
-    this.group.add(axesHelper);
-  }
-
-  load(onBeforeAdd?: (model: THREE.Group) => void): Promise<Entity> {
+  load = (onBeforeAdd?: (model: THREE.Group) => void): Promise<Entity> => {
     const { src, gltfLoader, mixer } = this;
 
     return new Promise((resolve) => {
@@ -49,7 +58,7 @@ export class Entity {
         resolve(this);
       });
     });
-  }
+  };
 
   play(actionIndex: number, shouldLoop = true, duration?: number) {
     const { actions, currentActionIndex } = this;
@@ -124,5 +133,82 @@ export class Entity {
     mixer.addEventListener("finished", onFinish);
 
     playNext(currentStepAction[0]);
+  }
+
+  setTargets(
+    targets: THREE.Vector3[],
+    startIndex: number,
+    nextTargetDirection: 1 | -1
+  ) {
+    this.targets = targets;
+    this.nextTarget = startIndex;
+    this.nextTargetDirection = nextTargetDirection;
+  }
+
+  updatePosition() {
+    if (
+      !this.targets ||
+      this.nextTarget === null ||
+      !this.nextTargetDirection
+    ) {
+      return;
+    }
+
+    const position = this.group.position;
+    const target = this.targets[this.nextTarget];
+
+    const direction = new THREE.Vector3().subVectors(target, position);
+    const distance = direction.length();
+
+    if (distance < 0.1) {
+      let nx = new THREE.Vector3();
+
+      const updatedTarget = this.nextTarget + this.nextTargetDirection;
+
+      if (updatedTarget > this.targets.length - 1 || updatedTarget < 0) {
+        this.nextTargetDirection = -this.nextTargetDirection;
+
+        nx = this.targets[this.nextTarget + this.nextTargetDirection];
+      } else {
+        this.nextTarget = updatedTarget;
+
+        nx = this.targets[this.nextTarget];
+      }
+
+      this.orientation = new THREE.Vector3().subVectors(nx, target).normalize();
+
+      this.updateOrientation();
+    } else {
+      // Normalize the direction vector and apply movement
+      direction.normalize();
+
+      const speed = 0.1; // Adjust the speed as necessary
+      position.add(direction.multiplyScalar(speed)); // Move the entity toward the target
+    }
+  }
+
+  updateOrientation() {
+    const rotation = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Vector3(this.orientation.x, 0, this.orientation.z)
+    );
+
+    this.group.rotation.setFromQuaternion(rotation);
+  }
+
+  update() {
+    const { mixer, game } = this;
+    const { clock } = game;
+
+    // @TODO fix any
+    const hasActiveActions = (mixer as any)._actions.some((action: any) =>
+      action.isRunning()
+    );
+
+    if (hasActiveActions) {
+      mixer.update(clock.deltaTime);
+    }
+
+    this.updatePosition();
   }
 }

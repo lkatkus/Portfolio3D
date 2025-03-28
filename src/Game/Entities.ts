@@ -33,9 +33,11 @@ export class Entities {
   }
 
   async initModels() {
+    const { game } = this;
+
     const loadedEntities = await Promise.all(
       ENTITIES_CONFIG.map(([name, src, onBeforeAdd]) =>
-        new Entity(name, src).load(onBeforeAdd)
+        new Entity(game, name, src).load(onBeforeAdd)
       )
     );
 
@@ -67,20 +69,10 @@ export class Entities {
   }
 
   update() {
-    const { game, entities } = this;
-    const { clock } = game;
+    const { entities } = this;
 
     entities.forEach((entity) => {
-      const mixer = entity.mixer;
-
-      // @TODO fix any
-      const hasActiveActions = (mixer as any)._actions.some((action: any) =>
-        action.isRunning()
-      );
-
-      if (hasActiveActions) {
-        mixer.update(clock.deltaTime);
-      }
+      entity.update();
     });
   }
 }

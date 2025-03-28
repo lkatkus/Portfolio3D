@@ -8,7 +8,6 @@ const INITIAL_FORWARD = new THREE.Vector3(-1, 0, 0);
 export class Player extends Entity {
   game: Game;
   isControlled: boolean;
-  orientation: THREE.Vector3;
   rotationSpeed: number;
   moveSpeed: number;
   keysPressed: Set<string>;
@@ -16,24 +15,21 @@ export class Player extends Entity {
   collisionCaster: CollisionCaster;
 
   constructor(game: Game) {
-    super("player", "/models/player.glb");
+    super(game, "player", "/models/player.glb");
 
     this.game = game;
     this.isControlled = false;
     this.orientation = INITIAL_FORWARD.clone();
 
-    this.rotationSpeed = 0.075;
     this.moveSpeed = 10;
+    this.rotationSpeed = 0.05;
 
     this.keysPressed = new Set();
-
-    this.load = this.load.bind(this);
+    this.collisionCaster = this.initCollisionCaster();
 
     this.init();
     this.initControls();
     this.initDebugger();
-
-    this.collisionCaster = this.initCollisionCaster();
   }
 
   async init() {
@@ -124,20 +120,6 @@ export class Player extends Entity {
     this.orientation.copy(forward);
   }
 
-  updateAnimations() {
-    const { mixer, game } = this;
-    const { clock } = game;
-
-    // @TODO fix any
-    const hasActiveActions = (mixer as any)._actions.some((action: any) =>
-      action.isRunning()
-    );
-
-    if (hasActiveActions) {
-      mixer.update(clock.deltaTime);
-    }
-  }
-
   update() {
     const { game, collisionCaster } = this;
     const { clock } = game;
@@ -214,10 +196,9 @@ export class Player extends Entity {
       }
     }
 
+    this.updateDebugger();
     this.play(actionIndex);
 
-    //
-    this.updateDebugger();
-    this.updateAnimations();
+    super.update();
   }
 }

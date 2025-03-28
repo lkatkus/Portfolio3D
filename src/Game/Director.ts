@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { OBJECT_BASE_POSITION } from "./constants";
 import type { Game } from "./Game";
 
@@ -138,6 +139,8 @@ export class Director {
 
       const trainEntity = entities.getEntityByName("train");
 
+      this.initFlowerGirl();
+
       trainEntity.playSequence([
         [0, { duration: 4 }],
         [3, { duration: 2 }],
@@ -169,12 +172,39 @@ export class Director {
     }
   }
 
+  initFlowerGirl() {
+    const { game } = this;
+    const { entities } = game;
+
+    const flowerGirlEntity = entities.getEntityByName("flower-girl");
+
+    flowerGirlEntity.group.position.copy(new THREE.Vector3(-20, 0, -18));
+
+    flowerGirlEntity.play(2);
+    flowerGirlEntity.setTargets(
+      [
+        new THREE.Vector3(-20, 0, -18),
+        new THREE.Vector3(-40, 0, -18),
+        new THREE.Vector3(-44, 3, -18),
+        new THREE.Vector3(-54, 3, -18),
+        new THREE.Vector3(-54, 3, 22),
+        new THREE.Vector3(-43, 3, 22),
+        new THREE.Vector3(-40, 6, 22),
+        new THREE.Vector3(-29, 6, 22),
+      ],
+      0,
+      1
+    );
+  }
+
   startDebug() {
     const { game } = this;
     const { player, operator } = game;
 
     player.enableControls();
     operator.setTarget(player);
+
+    this.initFlowerGirl();
   }
 
   explore() {

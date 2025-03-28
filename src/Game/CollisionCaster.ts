@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import type { Player } from "./Player";
+
+import type { Entity } from "./Entity";
 
 const frontTo = {
   back: (f: THREE.Vector3) => f.clone().negate(),
@@ -19,7 +20,7 @@ const colors = {
 };
 
 export class CollisionCaster {
-  player: Player;
+  entity: Entity;
   origin: THREE.Vector3;
 
   private front: THREE.Raycaster;
@@ -32,11 +33,11 @@ export class CollisionCaster {
   private debugArrows: Record<string, THREE.ArrowHelper> = {};
 
   constructor(
-    player: Player,
+    entity: Entity,
     origin: THREE.Vector3,
     forwardDirection: THREE.Vector3
   ) {
-    this.player = player;
+    this.entity = entity;
     this.origin = origin;
 
     this.front = this.initRayCaster(forwardDirection, 0.75);
@@ -61,7 +62,7 @@ export class CollisionCaster {
   }
 
   initDebug() {
-    const { game, group } = this.player;
+    const { game, group } = this.entity;
 
     const directions = {
       front: this.front.ray.direction,
@@ -91,14 +92,14 @@ export class CollisionCaster {
   }
 
   update() {
-    const { player } = this;
+    const { entity } = this;
 
-    const playerPosition = player.group.position.clone();
-    playerPosition.y += 1;
+    const entityPosition = entity.group.position.clone();
+    entityPosition.y += 1;
 
-    this.origin.copy(playerPosition);
+    this.origin.copy(entityPosition);
 
-    const forwardDirection = this.player.orientation.clone().normalize();
+    const forwardDirection = this.entity.orientation.clone().normalize();
 
     this.front.set(this.origin, forwardDirection);
     this.back.set(this.origin, frontTo.back(forwardDirection));
@@ -109,7 +110,7 @@ export class CollisionCaster {
   }
 
   checkCollisions() {
-    const sceneObjects = this.player.game.scenographer.group.children;
+    const sceneObjects = this.entity.game.scenographer.group.children;
 
     return {
       front: this.front.intersectObjects(sceneObjects, true).length > 0,
@@ -122,12 +123,12 @@ export class CollisionCaster {
   }
 
   checkGround() {
-    const sceneObjects = this.player.game.scenographer.group.children;
+    const sceneObjects = this.entity.game.scenographer.group.children;
 
     const intersections = this.down.intersectObjects(sceneObjects, true);
 
     if (intersections.length > 0) {
-      const diff = this.player.group.position.y - intersections[0].point.y;
+      const diff = this.entity.group.position.y - intersections[0].point.y;
 
       if (Math.abs(diff) < 0.01) {
         return new THREE.Vector3(0, 0, 0);

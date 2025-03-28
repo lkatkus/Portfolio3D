@@ -6,6 +6,13 @@ export const ENTITIES_CONFIG: [
   ((model: THREE.Group) => void)?
 ][] = [
   [
+    "flower-girl",
+    "/models/player.glb",
+    (model) => {
+      model.scale.setScalar(0.65);
+    },
+  ],
+  [
     "gameTitle",
     "/models/act-1/act-1-title.glb",
     (model) => {
