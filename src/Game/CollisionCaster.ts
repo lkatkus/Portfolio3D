@@ -61,7 +61,7 @@ export class CollisionCaster {
   }
 
   initDebug() {
-    const { group } = this.player;
+    const { game, group } = this.player;
 
     const directions = {
       front: this.front.ray.direction,
@@ -79,6 +79,10 @@ export class CollisionCaster {
         1,
         colors[key as keyof typeof colors]
       );
+
+      if (!game.debug.isEnabled) {
+        arrow.visible = false;
+      }
 
       group.add(arrow);
 

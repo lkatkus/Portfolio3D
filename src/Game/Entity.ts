@@ -8,6 +8,7 @@ export class Entity {
   gltfLoader: GLTFLoader;
   mixer: THREE.AnimationMixer;
   actions: THREE.AnimationAction[];
+  currentActionIndex: number | null;
 
   constructor(name: string, src: string) {
     this.name = name;
@@ -16,6 +17,7 @@ export class Entity {
     this.gltfLoader = new GLTFLoader();
     this.mixer = new THREE.AnimationMixer(this.group);
     this.actions = [];
+    this.currentActionIndex = null;
 
     // this.initDebug();
   }
@@ -50,7 +52,13 @@ export class Entity {
   }
 
   play(actionIndex: number, shouldLoop = true, duration?: number) {
-    const { actions } = this;
+    const { actions, currentActionIndex } = this;
+
+    if (actions.length === 0 || actionIndex === currentActionIndex) {
+      return;
+    }
+
+    this.currentActionIndex = actionIndex;
 
     actions.forEach((action) => action.stop());
 

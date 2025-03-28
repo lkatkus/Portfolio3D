@@ -16,13 +16,13 @@ export class Player extends Entity {
   collisionCaster: CollisionCaster;
 
   constructor(game: Game) {
-    super("player", "/models/act-0-cube.glb");
+    super("player", "/models/player.glb");
 
     this.game = game;
     this.isControlled = false;
     this.orientation = INITIAL_FORWARD.clone();
 
-    this.rotationSpeed = 0.05;
+    this.rotationSpeed = 0.075;
     this.moveSpeed = 10;
 
     this.keysPressed = new Set();
@@ -41,8 +41,8 @@ export class Player extends Entity {
     const { scene } = game;
 
     await load((model) => {
-      model.position.y += 1;
-      model.scale.setScalar(0.5);
+      model.scale.setScalar(0.65);
+      model.rotation.y = -Math.PI / 2;
     });
 
     scene.currentScene.add(this.group);
@@ -51,15 +51,35 @@ export class Player extends Entity {
   }
 
   initDebugger() {
+    const {
+      group: { position },
+    } = this;
+
+    const positionData = {
+      x: position.x.toFixed(2),
+      y: position.y.toFixed(2),
+      z: position.z.toFixed(2),
+    };
+
     const debugContainer = document.getElementById("playerDebugPosition")!;
 
-    debugContainer.innerHTML = JSON.stringify(this.group.position, null, 2);
+    debugContainer.innerHTML = JSON.stringify(positionData, null, 2);
   }
 
   updateDebugger() {
+    const {
+      group: { position },
+    } = this;
+
+    const positionData = {
+      x: position.x.toFixed(2),
+      y: position.y.toFixed(2),
+      z: position.z.toFixed(2),
+    };
+
     const debugContainer = document.getElementById("playerDebugPosition")!;
 
-    debugContainer.innerHTML = JSON.stringify(this.group.position, null, 2);
+    debugContainer.innerHTML = JSON.stringify(positionData, null, 2);
   }
 
   handleKeyDown(e: KeyboardEvent) {
@@ -104,6 +124,20 @@ export class Player extends Entity {
     this.orientation.copy(forward);
   }
 
+  updateAnimations() {
+    const { mixer, game } = this;
+    const { clock } = game;
+
+    // @TODO fix any
+    const hasActiveActions = (mixer as any)._actions.some((action: any) =>
+      action.isRunning()
+    );
+
+    if (hasActiveActions) {
+      mixer.update(clock.deltaTime);
+    }
+  }
+
   update() {
     const { game, collisionCaster } = this;
     const { clock } = game;
@@ -120,15 +154,21 @@ export class Player extends Entity {
       this.group.position.add(new THREE.Vector3(0, -0.1, 0));
     }
 
+    let actionIndex = 1;
+
     // Handle rotation
     if (this.keysPressed.has("a") || this.keysPressed.has("d")) {
       this.updateOrientation();
 
       if (this.keysPressed.has("a")) {
+        actionIndex = 4;
+
         this.group.rotateY(this.rotationSpeed);
       }
 
       if (this.keysPressed.has("d")) {
+        actionIndex = 5;
+
         this.group.rotateY(-this.rotationSpeed);
       }
     }
@@ -156,6 +196,8 @@ export class Player extends Entity {
       const moveVector = new THREE.Vector3();
 
       if (this.keysPressed.has("w") && !collisions.front) {
+        actionIndex = 2;
+
         moveVector.add(this.orientation);
         moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
 
@@ -163,6 +205,8 @@ export class Player extends Entity {
       }
 
       if (this.keysPressed.has("s") && !collisions.back) {
+        actionIndex = 3;
+
         moveVector.add(this.orientation.clone().negate());
         moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
 
@@ -170,7 +214,10 @@ export class Player extends Entity {
       }
     }
 
+    this.play(actionIndex);
+
     //
     this.updateDebugger();
+    this.updateAnimations();
   }
 }
