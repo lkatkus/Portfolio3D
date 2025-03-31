@@ -182,7 +182,7 @@ export class Entity {
       // Normalize the direction vector and apply movement
       direction.normalize();
 
-      const speed = 0.1; // Adjust the speed as necessary
+      const speed = 0.05; // Adjust the speed as necessary
       position.add(direction.multiplyScalar(speed)); // Move the entity toward the target
     }
   }

@@ -47,7 +47,7 @@ export class CollisionCaster {
     this.up = this.initRayCaster(frontTo.up(forwardDirection));
     this.down = this.initRayCaster(frontTo.down(forwardDirection));
 
-    this.initDebug();
+    // this.initDebug();
   }
 
   initRayCaster(direction: THREE.Vector3, farMultiplier = 1) {

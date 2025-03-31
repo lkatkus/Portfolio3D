@@ -80,12 +80,12 @@ export class Player extends Entity {
 
   handleKeyDown(e: KeyboardEvent) {
     if (this.isControlled) {
-      this.keysPressed.add(e.key);
+      this.keysPressed.add(e.code);
     }
   }
 
   handleKeyUp(e: KeyboardEvent) {
-    this.keysPressed.delete(e.key);
+    this.keysPressed.delete(e.code);
   }
 
   initControls() {
@@ -139,18 +139,16 @@ export class Player extends Entity {
     let actionIndex = 1;
 
     // Handle rotation
-    if (this.keysPressed.has("a") || this.keysPressed.has("d")) {
+    if (this.keysPressed.has("KeyA") || this.keysPressed.has("KeyD")) {
       this.updateOrientation();
 
-      if (this.keysPressed.has("a")) {
+      if (this.keysPressed.has("KeyA")) {
         actionIndex = 4;
-
         this.group.rotateY(this.rotationSpeed);
       }
 
-      if (this.keysPressed.has("d")) {
+      if (this.keysPressed.has("KeyD")) {
         actionIndex = 5;
-
         this.group.rotateY(-this.rotationSpeed);
       }
     }
@@ -174,10 +172,10 @@ export class Player extends Entity {
     }
 
     // Handle horizontal movement
-    if (this.keysPressed.has("w") || this.keysPressed.has("s")) {
+    if (this.keysPressed.has("KeyW") || this.keysPressed.has("KeyS")) {
       const moveVector = new THREE.Vector3();
 
-      if (this.keysPressed.has("w") && !collisions.front) {
+      if (this.keysPressed.has("KeyW") && !collisions.front) {
         actionIndex = 2;
 
         moveVector.add(this.orientation);
@@ -186,9 +184,8 @@ export class Player extends Entity {
         this.group.position.add(moveVector);
       }
 
-      if (this.keysPressed.has("s") && !collisions.back) {
+      if (this.keysPressed.has("KeyS") && !collisions.back) {
         actionIndex = 3;
-
         moveVector.add(this.orientation.clone().negate());
         moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
 

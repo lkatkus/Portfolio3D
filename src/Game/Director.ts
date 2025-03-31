@@ -139,8 +139,6 @@ export class Director {
 
       const trainEntity = entities.getEntityByName("train");
 
-      this.initFlowerGirl();
-
       trainEntity.playSequence([
         [0, { duration: 4 }],
         [3, { duration: 2 }],
@@ -180,7 +178,7 @@ export class Director {
 
     flowerGirlEntity.group.position.copy(new THREE.Vector3(-20, 0, -18));
 
-    flowerGirlEntity.play(2);
+    flowerGirlEntity.play(0);
     flowerGirlEntity.setTargets(
       [
         new THREE.Vector3(-20, 0, -18),
@@ -261,6 +259,8 @@ export class Director {
       const isTargetButtonDemo =
         intersect.object.parent!.name === "act-1-button-demo";
 
+      this.initFlowerGirl();
+
       if (isTargetButtonStart) {
         if (game.debug.isEnabled) {
           this.startDebug();
@@ -268,6 +268,7 @@ export class Director {
           this.currentScene = Scenes.Start;
         }
       }
+
       if (isTargetButtonDemo) {
         this.currentScene = Scenes.Demo;
       }
