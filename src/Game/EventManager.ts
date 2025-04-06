@@ -71,7 +71,7 @@ export class EventManager {
     const { game, helpersGroup, events } = this;
 
     events.forEach((event) => {
-      const geometry = new THREE.SphereGeometry(event.triggerRadius);
+      const geometry = new THREE.SphereGeometry(event.triggerRadius, 16, 16);
       const material = new THREE.MeshBasicMaterial({
         color: event?.debugColor || "red",
         wireframe: true,

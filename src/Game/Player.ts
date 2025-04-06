@@ -201,6 +201,10 @@ export class Player extends Entity {
       this.play(actionIndex);
     }
 
+    if (this.group.position.y < -15) {
+      this.group.position.set(0, 0, 0);
+    }
+
     super.update();
   }
 }

@@ -151,6 +151,8 @@ export class Director {
         await trainEntity.move(new THREE.Vector3(0, 0, 0), 2);
         await trainEntity.play(3, false, 2);
 
+        operator.setTarget(player);
+
         player.play(2);
         await player.move(new THREE.Vector3(0, 0, 0), 1);
 
@@ -161,6 +163,8 @@ export class Director {
 
       // Finish
       {
+        player.enableControls();
+
         trainEntity.playSequence(
           true,
           [0, { duration: 2 }],
@@ -168,9 +172,6 @@ export class Director {
           [2, { duration: 2 }],
           [1, { duration: 2 }]
         );
-
-        player.enableControls();
-        operator.setTarget(player);
       }
     }
   }
