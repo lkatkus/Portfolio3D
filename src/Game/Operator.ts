@@ -67,7 +67,7 @@ export class Operator {
     this.tracks = [];
 
     this.targetOffsetDirection = "se";
-    this.targetOffset = new THREE.Vector3(10, 10, 10);
+    this.targetOffset = new THREE.Vector3(0, 0, 0);
     this.targetOffsetTarget = new THREE.Vector3(10, 10, 10);
 
     this.initTracks();
@@ -202,44 +202,46 @@ export class Operator {
     }
   }
 
-  move(
-    trackIndex: number,
-    duration: number,
-    repeat: boolean = false,
-    cb?: () => void
-  ) {
-    const { tracks, currentCamera } = this;
+  move(trackIndex: number, duration: number, repeat = false, cb?: () => void) {
+    return new Promise<void>((res) => {
+      const { tracks, currentCamera } = this;
 
-    const track = tracks[trackIndex];
+      const track = tracks[trackIndex];
 
-    if (track) {
-      const camera = currentCamera.camera;
-      const positionCurve = track[0].curve;
-      const targetCurve = track[1].curve;
-      const progress = { t: 0 };
+      if (track) {
+        const camera = currentCamera.camera;
+        const positionCurve = track[0].curve;
+        const targetCurve = track[1].curve;
+        const progress = { t: 0 };
 
-      gsap.to(progress, {
-        t: 1,
-        repeat: repeat ? -1 : 0,
-        ease: "none",
-        duration,
-        onUpdate: () => {
-          const positionOnTrack = positionCurve.getPoint(progress.t);
-          const targetOnTrack = targetCurve.getPoint(progress.t);
+        gsap.to(progress, {
+          t: 1,
+          repeat: repeat ? -1 : 0,
+          ease: "none",
+          duration,
+          onUpdate: () => {
+            const positionOnTrack = positionCurve.getPoint(progress.t);
+            const targetOnTrack = targetCurve.getPoint(progress.t);
 
-          camera.lookAt(targetOnTrack);
-          camera.position.copy(positionOnTrack);
-        },
-        onComplete: () => {
-          cb && cb();
-        },
-      });
-    } else {
-      // @TODO maybe throw or call cb?
-    }
+            camera.lookAt(targetOnTrack);
+            camera.position.copy(positionOnTrack);
+          },
+          onComplete: () => {
+            cb && cb();
+
+            res();
+          },
+        });
+      } else {
+        // @TODO maybe throw or call cb?
+      }
+    });
   }
 
   setTarget(entity: Entity) {
+    this.isTransitioning = true;
+    this.targetOffset = this.currentCamera.camera.position.clone();
+
     this.target = entity;
   }
 

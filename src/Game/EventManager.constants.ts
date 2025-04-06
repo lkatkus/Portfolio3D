@@ -3,6 +3,7 @@ import type { Game } from "./Game";
 import { DIRECTIONS, EventConfig } from "./Event";
 
 const TRIGGER_OFFSET = 7;
+const TRIGGER_OFFSET_SMALL = 4;
 
 const CAMERA_EVENT: EventConfig[] = [
   {
@@ -140,6 +141,41 @@ const CAMERA_EVENT: EventConfig[] = [
       } else if (
         direction === DIRECTIONS.North &&
         operator.targetOffsetDirection === "sw"
+      ) {
+        operator.updateTargetOffset(1);
+      }
+    },
+  },
+  {
+    id: "camera-switch-5",
+    origin: new THREE.Vector3(-20, 9, 4),
+    triggerRadius: TRIGGER_OFFSET_SMALL,
+    onStart: (game: Game, direction: DIRECTIONS) => {
+      const { operator } = game;
+
+      if (
+        (direction === DIRECTIONS.South || direction === DIRECTIONS.East) &&
+        operator.targetOffsetDirection === "se"
+      ) {
+        operator.updateTargetOffset(1);
+      } else if (
+        (direction === DIRECTIONS.West || direction === DIRECTIONS.North) &&
+        operator.targetOffsetDirection === "ne"
+      ) {
+        operator.updateTargetOffset(-1);
+      }
+    },
+    onFinish: (game: Game, direction: DIRECTIONS) => {
+      const { operator } = game;
+
+      if (
+        (direction === DIRECTIONS.South || direction === DIRECTIONS.East) &&
+        operator.targetOffsetDirection === "ne"
+      ) {
+        operator.updateTargetOffset(-1);
+      } else if (
+        (direction === DIRECTIONS.West || direction === DIRECTIONS.North) &&
+        operator.targetOffsetDirection === "se"
       ) {
         operator.updateTargetOffset(1);
       }

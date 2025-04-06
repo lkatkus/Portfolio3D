@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Game } from "./Game";
+import gsap from "gsap";
 
 const INITIAL_FORWARD = new THREE.Vector3(-1, 0, 0);
 
@@ -61,35 +62,45 @@ export class Entity {
   };
 
   play(actionIndex: number, shouldLoop = true, duration?: number) {
-    const { actions, currentActionIndex } = this;
+    return new Promise<void>((res) => {
+      const { mixer, actions, currentActionIndex } = this;
 
-    if (actions.length === 0 || actionIndex === currentActionIndex) {
-      return;
-    }
-
-    this.currentActionIndex = actionIndex;
-
-    actions.forEach((action) => action.stop());
-
-    const action = actions[actionIndex];
-
-    if (action) {
-      if (duration) {
-        action.setDuration(duration);
+      if (actions.length === 0 || actionIndex === currentActionIndex) {
+        return;
       }
 
-      if (!shouldLoop) {
-        action.loop = THREE.LoopOnce;
-        action.clampWhenFinished = true;
+      this.currentActionIndex = actionIndex;
+
+      actions.forEach((action) => action.stop());
+
+      const action = actions[actionIndex];
+
+      if (action) {
+        if (duration) {
+          action.setDuration(duration);
+        }
+
+        if (!shouldLoop) {
+          action.loop = THREE.LoopOnce;
+          action.clampWhenFinished = true;
+        }
+
+        action.play();
       }
 
-      action.play();
-    }
+      const onFinish = () => {
+        mixer.removeEventListener("finished", onFinish);
+
+        res();
+      };
+
+      mixer.addEventListener("finished", onFinish);
+    });
   }
 
   playSequence(
-    steps: [number, { duration?: number; cb?: () => void }?][],
-    shouldLoop = false
+    shouldLoop = false,
+    ...steps: [number, { duration?: number; cb?: () => void }?][]
   ) {
     const { mixer } = this;
 
@@ -210,5 +221,21 @@ export class Entity {
     }
 
     this.updatePosition();
+  }
+
+  move(newPosition: THREE.Vector3, duration: number) {
+    const { group } = this;
+
+    return new Promise<void>((res) => {
+      gsap.to(group.position, {
+        duration,
+        x: newPosition.x,
+        y: newPosition.y,
+        z: newPosition.z,
+        onComplete: () => {
+          res();
+        },
+      });
+    });
   }
 }

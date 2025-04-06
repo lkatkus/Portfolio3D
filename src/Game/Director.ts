@@ -115,58 +115,63 @@ export class Director {
       const trainEntity = entities.getEntityByName("train");
 
       trainEntity.playSequence(
-        [
-          [0, { duration: 2 }],
-          [3, { duration: 2 }],
-          [2, { duration: 2 }],
-          [1, { duration: 2 }],
-        ],
-        true
+        true,
+        [0, { duration: 2 }],
+        [3, { duration: 2 }],
+        [2, { duration: 2 }],
+        [1, { duration: 2 }]
       );
     }
   }
 
-  start() {
+  async start() {
     const { game, timeout } = this;
     const { player, operator, entities } = game;
 
     if (timeout === null) {
       this.timeout = 1;
 
-      operator.move(0, 3, false, () => {
-        this.clearMenu();
-      });
-
       const trainEntity = entities.getEntityByName("train");
 
-      trainEntity.playSequence([
-        [0, { duration: 4 }],
-        [3, { duration: 2 }],
-        [2, { duration: 2 }],
-        [
-          1,
-          {
-            duration: 2,
-            cb: () => {
-              this.timeout = null;
-              this.currentScene = Scenes.Explore;
+      // Prepare
+      {
+        trainEntity.group.position.set(0, 0, -200);
+        player.group.position.set(6, 0, -200);
+        player.play(1);
+      }
 
-              player.enableControls();
-              operator.setTarget(player);
+      // Play
+      {
+        await operator.move(0, 2, false);
 
-              trainEntity.playSequence(
-                [
-                  [0, { duration: 2 }],
-                  [3, { duration: 2 }],
-                  [2, { duration: 2 }],
-                  [1, { duration: 2 }],
-                ],
-                true
-              );
-            },
-          },
-        ],
-      ]);
+        this.clearMenu();
+
+        player.move(new THREE.Vector3(6, 0, 0), 2);
+
+        await trainEntity.move(new THREE.Vector3(0, 0, 0), 2);
+        await trainEntity.play(3, false, 2);
+
+        player.play(2);
+        await player.move(new THREE.Vector3(0, 0, 0), 1);
+
+        player.play(1);
+        await trainEntity.play(2, false, 2);
+        await trainEntity.play(1, false, 2);
+      }
+
+      // Finish
+      {
+        trainEntity.playSequence(
+          true,
+          [0, { duration: 2 }],
+          [3, { duration: 2 }],
+          [2, { duration: 2 }],
+          [1, { duration: 2 }]
+        );
+
+        player.enableControls();
+        operator.setTarget(player);
+      }
     }
   }
 

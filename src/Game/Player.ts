@@ -121,80 +121,85 @@ export class Player extends Entity {
   }
 
   update() {
-    const { game, collisionCaster } = this;
+    const { isControlled, game, collisionCaster } = this;
     const { clock } = game;
     const deltaTime = clock.deltaTime;
 
-    collisionCaster.update();
+    if (isControlled) {
+      collisionCaster.update();
 
-    const collisions = collisionCaster.checkCollisions();
-    const groundOffsetVector = collisionCaster.checkGround();
+      const collisions = collisionCaster.checkCollisions();
+      const groundOffsetVector = collisionCaster.checkGround();
 
-    if (groundOffsetVector) {
-      this.group.position.add(groundOffsetVector);
-    } else {
-      this.group.position.add(new THREE.Vector3(0, -0.1, 0));
+      if (groundOffsetVector) {
+        this.group.position.add(groundOffsetVector);
+      } else {
+        this.group.position.add(new THREE.Vector3(0, -0.1, 0));
+      }
+
+      let actionIndex = 1;
+
+      // Handle rotation
+      if (this.keysPressed.has("KeyA") || this.keysPressed.has("KeyD")) {
+        this.updateOrientation();
+
+        if (this.keysPressed.has("KeyA")) {
+          actionIndex = 4;
+          this.group.rotateY(this.rotationSpeed);
+        }
+
+        if (this.keysPressed.has("KeyD")) {
+          actionIndex = 5;
+          this.group.rotateY(-this.rotationSpeed);
+        }
+      }
+
+      // Handle elevation
+      if (
+        this.keysPressed.has("ArrowUp") ||
+        this.keysPressed.has("ArrowDown")
+      ) {
+        const moveVector = new THREE.Vector3(0, 1, 0);
+
+        if (this.keysPressed.has("ArrowUp") && !collisions.up) {
+          moveVector.normalize().multiplyScalar(this.moveSpeed * 2 * deltaTime);
+
+          this.group.position.add(moveVector);
+        }
+
+        if (this.keysPressed.has("ArrowDown") && !collisions.down) {
+          moveVector.negate();
+          moveVector.normalize().multiplyScalar(this.moveSpeed * 2 * deltaTime);
+
+          this.group.position.add(moveVector);
+        }
+      }
+
+      // Handle horizontal movement
+      if (this.keysPressed.has("KeyW") || this.keysPressed.has("KeyS")) {
+        const moveVector = new THREE.Vector3();
+
+        if (this.keysPressed.has("KeyW") && !collisions.front) {
+          actionIndex = 2;
+
+          moveVector.add(this.orientation);
+          moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
+
+          this.group.position.add(moveVector);
+        }
+
+        if (this.keysPressed.has("KeyS") && !collisions.back) {
+          actionIndex = 3;
+          moveVector.add(this.orientation.clone().negate());
+          moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
+
+          this.group.position.add(moveVector);
+        }
+      }
+
+      this.updateDebugger();
+      this.play(actionIndex);
     }
-
-    let actionIndex = 1;
-
-    // Handle rotation
-    if (this.keysPressed.has("KeyA") || this.keysPressed.has("KeyD")) {
-      this.updateOrientation();
-
-      if (this.keysPressed.has("KeyA")) {
-        actionIndex = 4;
-        this.group.rotateY(this.rotationSpeed);
-      }
-
-      if (this.keysPressed.has("KeyD")) {
-        actionIndex = 5;
-        this.group.rotateY(-this.rotationSpeed);
-      }
-    }
-
-    // Handle elevation
-    if (this.keysPressed.has("ArrowUp") || this.keysPressed.has("ArrowDown")) {
-      const moveVector = new THREE.Vector3(0, 1, 0);
-
-      if (this.keysPressed.has("ArrowUp") && !collisions.up) {
-        moveVector.normalize().multiplyScalar(this.moveSpeed * 2 * deltaTime);
-
-        this.group.position.add(moveVector);
-      }
-
-      if (this.keysPressed.has("ArrowDown") && !collisions.down) {
-        moveVector.negate();
-        moveVector.normalize().multiplyScalar(this.moveSpeed * 2 * deltaTime);
-
-        this.group.position.add(moveVector);
-      }
-    }
-
-    // Handle horizontal movement
-    if (this.keysPressed.has("KeyW") || this.keysPressed.has("KeyS")) {
-      const moveVector = new THREE.Vector3();
-
-      if (this.keysPressed.has("KeyW") && !collisions.front) {
-        actionIndex = 2;
-
-        moveVector.add(this.orientation);
-        moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
-
-        this.group.position.add(moveVector);
-      }
-
-      if (this.keysPressed.has("KeyS") && !collisions.back) {
-        actionIndex = 3;
-        moveVector.add(this.orientation.clone().negate());
-        moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
-
-        this.group.position.add(moveVector);
-      }
-    }
-
-    this.updateDebugger();
-    this.play(actionIndex);
 
     super.update();
   }
