@@ -137,7 +137,7 @@ export class Director {
       {
         trainEntity.group.position.set(0, 0, -200);
         player.group.position.set(6, 0, -200);
-        player.play(1);
+        player.play(0);
       }
 
       // Play
@@ -153,18 +153,20 @@ export class Director {
 
         operator.setTarget(player);
 
-        player.play(2);
+        player.play(1);
         await player.move(new THREE.Vector3(0, 0, 0), 1);
 
-        player.play(1);
+        player.play(0);
         await trainEntity.play(2, false, 2);
         await trainEntity.play(1, false, 2);
       }
 
       // Finish
       {
-        player.enableControls();
+        this.timeout = null;
+        this.currentScene = Scenes.Explore;
 
+        player.enableControls();
         trainEntity.playSequence(
           true,
           [0, { duration: 2 }],

@@ -7,9 +7,9 @@ export const ENTITIES_CONFIG: [
 ][] = [
   [
     "flower-girl",
-    "/models/flowerGirl.glb",
+    "/models/msja-flowerGirl-0406.glb",
     (model) => {
-      model.scale.setScalar(1.25);
+      model.scale.setScalar(1.1);
     },
   ],
   [

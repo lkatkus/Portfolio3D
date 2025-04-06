@@ -15,7 +15,7 @@ export class Player extends Entity {
   collisionCaster: CollisionCaster;
 
   constructor(game: Game) {
-    super(game, "player", "/models/player.glb");
+    super(game, "player", "/models/msja-player-0406.glb");
 
     this.game = game;
     this.isControlled = false;
@@ -137,19 +137,19 @@ export class Player extends Entity {
         this.group.position.add(new THREE.Vector3(0, -0.1, 0));
       }
 
-      let actionIndex = 1;
+      let actionIndex = 0;
 
       // Handle rotation
       if (this.keysPressed.has("KeyA") || this.keysPressed.has("KeyD")) {
         this.updateOrientation();
 
         if (this.keysPressed.has("KeyA")) {
-          actionIndex = 4;
+          // actionIndex = 4;
           this.group.rotateY(this.rotationSpeed);
         }
 
         if (this.keysPressed.has("KeyD")) {
-          actionIndex = 5;
+          // actionIndex = 5;
           this.group.rotateY(-this.rotationSpeed);
         }
       }
@@ -180,7 +180,7 @@ export class Player extends Entity {
         const moveVector = new THREE.Vector3();
 
         if (this.keysPressed.has("KeyW") && !collisions.front) {
-          actionIndex = 2;
+          actionIndex = 1;
 
           moveVector.add(this.orientation);
           moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
@@ -189,7 +189,7 @@ export class Player extends Entity {
         }
 
         if (this.keysPressed.has("KeyS") && !collisions.back) {
-          actionIndex = 3;
+          actionIndex = 2;
           moveVector.add(this.orientation.clone().negate());
           moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
 
