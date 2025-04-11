@@ -84,10 +84,12 @@ export class Game {
       eventManager,
       operator,
       rayCaster,
+      scene,
     } = this;
 
     clock.update();
     director.update();
+    scene.update();
     player.update();
     producer.update();
     rayCaster.update();

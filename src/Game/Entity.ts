@@ -208,7 +208,7 @@ export class Entity {
   }
 
   update() {
-    const { mixer, game } = this;
+    const { name, mixer, game, group } = this;
     const { clock } = game;
 
     // @TODO fix any
@@ -218,6 +218,13 @@ export class Entity {
 
     if (hasActiveActions) {
       mixer.update(clock.deltaTime);
+    }
+
+    if (name.includes("waterfall")) {
+      const mesh = group.children[0].children[0] as THREE.Mesh;
+
+      (mesh.material as THREE.ShaderMaterial).uniforms.time.value =
+        performance.now() / 1000;
     }
 
     this.updatePosition();
