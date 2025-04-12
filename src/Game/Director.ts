@@ -207,19 +207,11 @@ export class Director {
     const { game } = this;
     const { player, operator } = game;
 
-    player.group.position.set(-35, 6, -14);
-    // player.group.position.set(-52, 4, 6);
-    // player.group.position.set(-25, -3, 30);
+    // player.group.position.set(-35, 6, -18);
+    // // player.group.position.set(-52, 4, 6);
+    // // player.group.position.set(-25, -3, 30);
 
-    setTimeout(() => {
-      // operator.updateTargetOffset(-1);
-      operator.updateTargetOffset(1);
-      setTimeout(() => {
-        // operator.updateTargetOffset(1);
-      }, 1000);
-    }, 1000);
-
-    // player.enableControls();
+    player.enableControls();
     operator.setTarget(player);
 
     this.initFlowerGirl();

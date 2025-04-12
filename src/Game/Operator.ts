@@ -49,6 +49,7 @@ export class Operator {
   isTransitioning: boolean;
 
   target?: Entity;
+  prevTarget?: Entity;
   targetOffset: THREE.Vector3;
   targetOffsetTarget: THREE.Vector3;
   targetOffsetDirection: "sw" | "nw" | "ne" | "se";
@@ -154,10 +155,26 @@ export class Operator {
       if (this.controls.enabled) {
         canvas.classList.remove("controlled");
         this.controls.enabled = false;
+
+        if (this.prevTarget) {
+          this.target = this.prevTarget;
+          this.prevTarget = undefined;
+        }
       } else {
         canvas.classList.add("controlled");
         this.controls.enabled = true;
+
+        if (this.target) {
+          this.prevTarget = this.target;
+          this.target = undefined;
+        }
       }
+    }
+  }
+
+  toggleTargetOffset() {
+    if (this.target) {
+      this.updateTargetOffset(1);
     }
   }
 
@@ -170,8 +187,9 @@ export class Operator {
 
     const debugConfig = {
       currentCamera: 0,
-      toggleTrackHelpers: this.toggleHelpers.bind(this),
       toggleControls: this.toggleControls.bind(this),
+      toggleTrackHelpers: this.toggleHelpers.bind(this),
+      toggleTargetOffset: this.toggleTargetOffset.bind(this),
     };
 
     folder
@@ -183,6 +201,7 @@ export class Operator {
 
     folder.add(debugConfig, "toggleControls");
     folder.add(debugConfig, "toggleTrackHelpers");
+    folder.add(debugConfig, "toggleTargetOffset");
   }
 
   initTrack(trackIndex: number) {
@@ -273,7 +292,7 @@ export class Operator {
 
   smoothUpdate() {
     if (this.isTransitioning) {
-      this.targetOffset.lerp(this.targetOffsetTarget, 0.05); // Adjust speed multiplier
+      this.targetOffset.lerp(this.targetOffsetTarget, 0.075); // Adjust speed multiplier
 
       if (this.targetOffset.distanceTo(this.targetOffsetTarget) < 0.01) {
         this.targetOffset.copy(this.targetOffsetTarget);

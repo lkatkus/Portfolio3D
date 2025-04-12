@@ -12,6 +12,8 @@ export class Player extends Entity {
   moveSpeed: number;
   keysPressed: Set<string>;
 
+  activeAction?: number;
+
   collisionCaster: CollisionCaster;
 
   constructor(game: Game) {
@@ -29,7 +31,6 @@ export class Player extends Entity {
 
     this.init();
     this.initControls();
-    this.initDebugger();
   }
 
   async init() {
@@ -39,6 +40,8 @@ export class Player extends Entity {
     await load((model) => {
       model.scale.setScalar(0.65);
       model.rotation.y = -Math.PI / 2;
+
+      this.initDebugger();
     });
 
     scene.currentScene.add(this.group);
@@ -47,6 +50,32 @@ export class Player extends Entity {
   }
 
   initDebugger() {
+    const { game, actions } = this;
+    const { debug } = game;
+
+    const folder = debug.gui.addFolder("Player").close();
+    const availableAnimations = actions.map((_, index) => index);
+
+    const debugConfig = {
+      currentAnimation: undefined,
+      clearCurrentAnimation: () => {
+        this.activeAction = undefined;
+      },
+    };
+
+    folder
+      .add(debugConfig, "currentAnimation", availableAnimations)
+      .name("Active animation")
+      .onChange((index: any) => {
+        this.activeAction = index;
+      });
+
+    folder.add(debugConfig, "clearCurrentAnimation");
+
+    this.initDebuggerDisplay();
+  }
+
+  initDebuggerDisplay() {
     const {
       group: { position },
     } = this;
@@ -198,7 +227,12 @@ export class Player extends Entity {
       }
 
       this.updateDebugger();
-      this.play(actionIndex);
+
+      if (this.activeAction !== undefined) {
+        this.play(this.activeAction);
+      } else {
+        this.play(actionIndex);
+      }
     }
 
     if (this.group.position.y < -15) {
