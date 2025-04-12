@@ -153,12 +153,12 @@ export class Director {
 
         operator.setTarget(player);
 
-        player.play(1);
+        player.play(3);
         await player.move(new THREE.Vector3(0, 0, 0), 1);
 
-        player.play(0);
+        player.play(2);
         await trainEntity.play(2, false, 2);
-        await trainEntity.play(1, false, 2);
+        await trainEntity.play(1, false, 4);
       }
 
       // Finish

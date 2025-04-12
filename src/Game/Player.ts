@@ -17,7 +17,7 @@ export class Player extends Entity {
   collisionCaster: CollisionCaster;
 
   constructor(game: Game) {
-    super(game, "player", "/models/msja-player-0406.glb");
+    super(game, "player", "/models/msja-player-0412.glb");
 
     this.game = game;
     this.isControlled = false;
@@ -61,6 +61,9 @@ export class Player extends Entity {
       clearCurrentAnimation: () => {
         this.activeAction = undefined;
       },
+      toggleCollisions: () => {
+        this.collisionCaster.toggleDisabled();
+      },
     };
 
     folder
@@ -71,6 +74,7 @@ export class Player extends Entity {
       });
 
     folder.add(debugConfig, "clearCurrentAnimation");
+    folder.add(debugConfig, "toggleCollisions");
 
     this.initDebuggerDisplay();
   }
@@ -209,7 +213,7 @@ export class Player extends Entity {
         const moveVector = new THREE.Vector3();
 
         if (this.keysPressed.has("KeyW") && !collisions.front) {
-          actionIndex = 1;
+          actionIndex = 3;
 
           moveVector.add(this.orientation);
           moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
@@ -218,7 +222,7 @@ export class Player extends Entity {
         }
 
         if (this.keysPressed.has("KeyS") && !collisions.back) {
-          actionIndex = 2;
+          actionIndex = 4;
           moveVector.add(this.orientation.clone().negate());
           moveVector.normalize().multiplyScalar(this.moveSpeed * deltaTime);
 
@@ -235,6 +239,7 @@ export class Player extends Entity {
       }
     }
 
+    // Reset
     if (this.group.position.y < -15) {
       this.group.position.set(0, 0, 0);
     }

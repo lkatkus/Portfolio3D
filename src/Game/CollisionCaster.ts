@@ -22,6 +22,7 @@ const colors = {
 export class CollisionCaster {
   entity: Entity;
   origin: THREE.Vector3;
+  disabled: boolean;
 
   private front: THREE.Raycaster;
   private back: THREE.Raycaster;
@@ -39,6 +40,7 @@ export class CollisionCaster {
   ) {
     this.entity = entity;
     this.origin = origin;
+    this.disabled = false;
 
     this.front = this.initRayCaster(forwardDirection, 0.75);
     this.back = this.initRayCaster(frontTo.back(forwardDirection), 0.75);
@@ -91,6 +93,10 @@ export class CollisionCaster {
     }
   }
 
+  toggleDisabled() {
+    this.disabled = !this.disabled;
+  }
+
   update() {
     const { entity } = this;
 
@@ -110,6 +116,17 @@ export class CollisionCaster {
   }
 
   checkCollisions() {
+    if (this.disabled) {
+      return {
+        front: false,
+        back: false,
+        left: false,
+        right: false,
+        up: false,
+        down: false,
+      };
+    }
+
     const sceneObjects = this.entity.game.scenographer.group.children;
 
     return {
@@ -123,6 +140,10 @@ export class CollisionCaster {
   }
 
   checkGround() {
+    if (this.disabled) {
+      return new THREE.Vector3(0, 0, 0);
+    }
+
     const sceneObjects = this.entity.game.scenographer.group.children;
 
     const intersections = this.down.intersectObjects(sceneObjects, true);
