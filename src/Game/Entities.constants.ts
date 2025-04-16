@@ -172,8 +172,6 @@ const getWaterfallBaseMaterial = (scaleX: number) => {
         // Add animated pixel noise to foam
         float foamMask = foamTop1 + foamTop2 * foamNoise2 + foamTop3 * foamNoise3;
 
-        // Mask the foam effect to only affect between uv.x 0.25 and uv.x 0.75
-
         // Combine foam mask with X-axis range condition
         // foamMask *= foamXMask;
 
@@ -225,7 +223,7 @@ export const ENTITIES_CONFIG: [
     },
   ],
   ["train", "/models/act-1/act-1-train-1.glb"],
-  ["world", "/models/act-1/act-1-world.glb"],
+  ["world", "/models/msja-world-0416.glb"],
   [
     "jsLogo",
     "/models/act-1/act-1-logo.glb",
