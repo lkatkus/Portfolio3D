@@ -46,6 +46,8 @@ export class Entity {
         const modelData = gltf.scene;
         const modelAnimationData = gltf.animations || [];
 
+        modelData.name = this.name;
+
         modelAnimationData.forEach((animation) => {
           this.actions.push(mixer.clipAction(animation));
         });

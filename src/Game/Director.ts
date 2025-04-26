@@ -87,7 +87,9 @@ export class Director {
     const { entities } = game;
 
     entities.entities.forEach((entity) => {
-      if (["gameTitle", "gameStartButton"].includes(entity.name)) {
+      if (
+        ["gameTitle", "gameStartButton", "gameDemoButton"].includes(entity.name)
+      ) {
         entity.group.visible = false;
       }
     });
@@ -157,7 +159,7 @@ export class Director {
         await player.move(new THREE.Vector3(0, 0, 0), 1);
 
         trainEntity.playSequence(false, [2], [1]);
-        await player.play(2, false);
+        await player.play(2, false, 6);
       }
 
       // Finish
@@ -202,17 +204,26 @@ export class Director {
     );
   }
 
+  initCat() {
+    const { game } = this;
+    const { entities } = game;
+
+    const flowerGirlEntity = entities.getEntityByName("cat");
+    flowerGirlEntity.play(0);
+  }
+
   startDebug() {
     const { game } = this;
     const { player, operator } = game;
 
     // player.group.position.set(-35, 6, -18);
-    // // player.group.position.set(-52, 4, 6);
-    // // player.group.position.set(-25, -3, 30);
+    // player.group.position.set(-52, 4, 6);
+    // player.group.position.set(-25, 4, 30);
 
     player.enableControls();
     operator.setTarget(player);
 
+    this.initCat();
     this.initFlowerGirl();
   }
 
@@ -221,19 +232,28 @@ export class Director {
     const { game } = this;
     const { clock, entities } = game;
 
+    const wobble = (geometry: THREE.Object3D) => {
+      const rotationDiff = Math.PI * clock.deltaTime;
+
+      geometry.rotation.y += rotationDiff * CONFIG.rotationMultiplier;
+      geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
+
+      const time = clock.elapsedTime;
+      const wobbleAmount = 0.1;
+      const wobbleSpeed = 3;
+
+      geometry.rotation.x = wobbleAmount * Math.sin(time * wobbleSpeed);
+      geometry.rotation.z = wobbleAmount * Math.cos(time * wobbleSpeed);
+    };
+
     const jsLogo = entities.getEntityByName("jsLogo");
-    const geometry = jsLogo.group.children[0];
-    const rotationDiff = Math.PI * clock.deltaTime;
+    const jsLogoGeometry = jsLogo.group.children[0];
 
-    geometry.rotation.y += rotationDiff * CONFIG.rotationMultiplier;
-    geometry.rotation.y = geometry.rotation.y % (Math.PI * 2);
+    const effectDizzy = entities.getEntityByName("effectDizzy");
+    const effectDizzyGeometry = effectDizzy.group.children[0];
 
-    const time = clock.elapsedTime;
-    const wobbleAmount = 0.1;
-    const wobbleSpeed = 3;
-
-    geometry.rotation.x = wobbleAmount * Math.sin(time * wobbleSpeed);
-    geometry.rotation.z = wobbleAmount * Math.cos(time * wobbleSpeed);
+    wobble(jsLogoGeometry);
+    wobble(effectDizzyGeometry);
   }
 
   update() {
@@ -266,10 +286,11 @@ export class Director {
       const intersect = rayCaster.intersects[0];
 
       const isTargetButtonStart =
-        intersect.object.parent!.name === "act-1-button-start";
+        intersect.object.parent!.name === "gameStartButton";
       const isTargetButtonDemo =
-        intersect.object.parent!.name === "act-1-button-demo";
+        intersect.object.parent!.name === "gameDemoButton";
 
+      this.initCat();
       this.initFlowerGirl();
 
       if (isTargetButtonStart) {

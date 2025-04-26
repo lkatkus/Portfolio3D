@@ -17,7 +17,7 @@ export class Player extends Entity {
   collisionCaster: CollisionCaster;
 
   constructor(game: Game) {
-    super(game, "player", "/models/msja-player-0412.glb");
+    super(game, "player", "/models/entities/msja-player-0426.glb");
 
     this.game = game;
     this.isControlled = false;

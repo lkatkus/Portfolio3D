@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { degToRad } from "three/src/math/MathUtils.js";
 
 const getWaterfallMaterial = (
   scaleX: number,
@@ -196,34 +197,52 @@ export const ENTITIES_CONFIG: [
 ][] = [
   [
     "flower-girl",
-    "/models/msja-flowerGirl-0406.glb",
+    "/models/entities/msja-flowerGirl-0406.glb",
     (model) => {
       model.scale.setScalar(1.1);
     },
   ],
   [
+    "cat",
+    "/models/entities/msja-cat-0426.glb",
+    (model) => {
+      model.scale.setScalar(4.5);
+      model.rotateX(degToRad(10));
+      model.rotateY(degToRad(125));
+      model.position.copy(new THREE.Vector3(-34, -3, 30.5));
+    },
+  ],
+  [
+    "effectDizzy",
+    "/models/effects/msja-effect-dizzy-0426.glb",
+    (model) => {
+      model.scale.setScalar(3);
+      model.position.copy(new THREE.Vector3(-32, 5.5, 30));
+    },
+  ],
+  [
     "gameTitle",
-    "/models/act-1/act-1-title.glb",
+    "/models/msja-ui-title.glb",
     (model) => {
       model.position.copy(new THREE.Vector3(-5, 3.6, 70));
     },
   ],
   [
     "gameStartButton",
-    "/models/act-1/act-1-button-start.glb",
+    "/models/msja-ui-button-start.glb",
     (model) => {
       model.position.copy(new THREE.Vector3(-5, 1.25, 70));
     },
   ],
   [
-    "gameStartButton",
-    "/models/act-1/act-1-button-demo.glb",
+    "gameDemoButton",
+    "/models/msja-ui-button-demo.glb",
     (model) => {
       model.position.copy(new THREE.Vector3(-5, 0.75, 70));
     },
   ],
   ["train", "/models/act-1/act-1-train-1.glb"],
-  ["world", "/models/msja-world-0416.glb"],
+  ["world", "/models/msja-world-0425.glb"],
   [
     "jsLogo",
     "/models/act-1/act-1-logo.glb",
