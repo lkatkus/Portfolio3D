@@ -239,13 +239,23 @@ export class Operator {
           ease: "none",
           duration,
           onUpdate: () => {
-            const positionOnTrack = positionCurve.getPoint(progress.t);
-            const targetOnTrack = targetCurve.getPoint(progress.t);
+            const t = Math.min(progress.t, 1);
+
+            const positionOnTrack = positionCurve.getPoint(t);
+            const targetOnTrack = targetCurve.getPoint(t);
 
             camera.lookAt(targetOnTrack);
             camera.position.copy(positionOnTrack);
           },
           onComplete: () => {
+            const lastPositionPoint =
+              positionCurve.points[positionCurve.points.length - 1];
+            const lastTargetPoint =
+              targetCurve.points[targetCurve.points.length - 1];
+
+            camera.lookAt(lastTargetPoint);
+            camera.position.copy(lastPositionPoint);
+
             cb && cb();
 
             res();

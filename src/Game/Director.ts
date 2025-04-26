@@ -159,7 +159,7 @@ export class Director {
         await player.move(new THREE.Vector3(0, 0, 0), 1);
 
         trainEntity.playSequence(false, [2], [1]);
-        await player.play(2, false, 6);
+        await player.play(2, false, 7);
       }
 
       // Finish
